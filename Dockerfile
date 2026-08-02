@@ -29,7 +29,6 @@ RUN apk add --no-cache ca-certificates openssh-client
 # Copy application binary and required assets
 COPY --from=builder /app/ssh-portfolio .
 COPY --from=builder /app/resume ./resume
-COPY --from=builder ["/app/arindam resume latest.pdf", "./arindam resume latest.pdf"]
 
 # Volume for persistent host key generation
 VOLUME ["/app/.ssh"]
