@@ -1,22 +1,37 @@
-# Binary
+# Compiled Binaries
 ssh-portfolio
-
-# SSH keys (auto-generated)
-.ssh/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Go
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+bin/
+dist/
+
+# Dependencies
+vendor/
+
+# Host Keys & Secrets (DO NOT COMMIT)
+.ssh/
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.env
+.env.*
+
+# Logs & Temporary Files
+*.log
+tmp/
+.cache/
+
+# Test & Coverage Reports
 *.test
 *.out
+coverage.html
+
+# IDEs & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
