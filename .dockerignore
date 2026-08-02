@@ -1,0 +1,9 @@
+.git
+.gitignore
+*.exe
+ssh-portfolio
+.ssh/
+.skills/
+*.pdf
+!arindam resume latest.pdf
+!resume_with_everything_.pdf

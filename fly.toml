@@ -1,0 +1,20 @@
+# fly.toml app configuration for arindam-ssh-portfolio
+app = "arindam-ssh-portfolio"
+primary_region = "bom"
+
+[build]
+
+[[services]]
+  internal_port = 2222
+  protocol = "tcp"
+
+  [[services.ports]]
+    port = 2222
+
+  [[services.ports]]
+    port = 22
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1

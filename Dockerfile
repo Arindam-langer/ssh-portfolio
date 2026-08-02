@@ -1,34 +1,34 @@
 # Build stage
-FROM golang:1.24-alpine AS builder
+FROM golang:alpine AS builder
 
 WORKDIR /app
 
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates
 
-# Cache dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source
+# Copy all files including vendor directory (100% fast offline build)
 COPY . .
 
-# Build static binary
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ssh-portfolio .
+# Build lightweight static binary using vendored dependencies
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -mod=vendor \
+    -ldflags="-s -w" \
+    -trimpath \
+    -o ssh-portfolio .
 
-# Final runtime stage
+# Final minimal runtime stage
 FROM alpine:latest
 
 WORKDIR /app
 
 RUN apk add --no-cache ca-certificates openssh-client
 
-# Copy binary and resume
+# Copy application binary and required assets
 COPY --from=builder /app/ssh-portfolio .
 COPY --from=builder /app/resume ./resume
-COPY --from=builder /app/arindam\ resume\ latest.pdf .
+COPY --from=builder ["/app/arindam resume latest.pdf", "./arindam resume latest.pdf"]
 
-# Create volume for persistent SSH host keys
+# Volume for persistent host key generation
 VOLUME ["/app/.ssh"]
 
 EXPOSE 2222
