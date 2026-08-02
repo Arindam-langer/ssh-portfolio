@@ -6,15 +6,12 @@ WORKDIR /app
 # Install build dependencies
 RUN apk add --no-cache git ca-certificates
 
-# Cache dependencies layer
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy source code
+# Copy source code including local vendor/
 COPY . .
 
-# Build lightweight static binary
+# Build static binary using vendor directory
 RUN CGO_ENABLED=0 GOOS=linux go build \
+    -mod=vendor \
     -ldflags="-s -w" \
     -trimpath \
     -o ssh-portfolio .
