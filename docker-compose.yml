@@ -1,0 +1,14 @@
+services:
+  ssh-portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ssh-portfolio
+    ports:
+      - "2222:2222"
+    volumes:
+      - ssh_keys:/app/.ssh
+    restart: unless-stopped
+
+volumes:
+  ssh_keys:
