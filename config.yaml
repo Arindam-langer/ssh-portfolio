@@ -1,0 +1,182 @@
+profile:
+  name: "Arindam Langer"
+  tagline: "Backend Engineer · Go & Node.js · AI Pipeline Architect"
+  ascii_logo: |
+    █████╗ ██████╗ ██╗███╗   ██╗██████╗  █████╗ ███╗   ███╗
+    ██╔══██╗██╔══██╗██║████╗  ██║██╔══██╗██╔══██╗████╗ ████║
+    ███████║██████╔╝██║██╔██╗ ██║██║  ██║███████║██╔████╔██║
+    ██╔══██║██╔══██╗██║██║╚██╗██║██║  ██║██╔══██║██║╚██╔╝██║
+    ██║  ██║██║  ██║██║██║ ╚████║██████╔╝██║  ██║██║ ╚═╝ ██║
+    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝
+
+sections:
+  - title: "About"
+    type: "text"
+    content: |
+      Backend engineer who builds things that survive production.
+
+      I design high-performance microservices in Go and Node.js, architect 
+      AI/RAG pipelines that run fully offline, and ship containerized systems 
+      on Kubernetes with zero-downtime deploys.
+
+      Currently interning at OnClick Innovations where I've built 4 production 
+      AI video generation pipelines — cutting ad production from hours to minutes.
+      Previously architected a query engine microservice at Resolyte consumed by 
+      3+ downstream services.
+
+      I believe great software is invisible — it just works, scales, and stays 
+      out of the user's way.
+
+  - title: "Skills"
+    type: "skill_list"
+    categories:
+      - name: "Languages"
+        items:
+          - name: "Go"
+            # level: 92
+          - name: "JavaScript"
+            # level: 88
+          - name: "Python"
+            # level: 82
+          - name: "C"
+            # level: 70
+          - name: "SQL"
+            # level: 85
+      - name: "Frameworks"
+        items:
+          - name: "Node.js"
+            # level: 90
+          - name: "Express.js"
+            # level: 88
+          - name: "React"
+            # level: 75
+          - name: "Flask"
+            # level: 78
+          - name: "LangChainGo"
+            # level: 72
+          - name: "Bubble Tea"
+            # level: 85
+          - name: "gRPC"
+            # level: 82
+      - name: "Databases"
+        items:
+          - name: "PostgreSQL"
+            # level: 90
+          - name: "pgvector"
+            # level: 78
+          - name: "MongoDB"
+            # level: 75
+          - name: "Redis"
+            # level: 85
+          - name: "BullMQ"
+            # level: 80
+      - name: "AI & ML"
+        items:
+          - name: "Ollama"
+            # level: 82
+          - name: "OpenAI API"
+            # level: 85
+          - name: "Deepgram"
+            # level: 72
+          - name: "Google Gemini"
+            # level: 78
+          - name: "RAG Pipelines"
+            # level: 88
+      - name: "DevOps"
+        items:
+          - name: "Docker"
+            # level: 90
+          - name: "Kubernetes"
+            # level: 82
+          - name: "AWS S3"
+            # level: 75
+          - name: "FFmpeg"
+            # level: 70
+          - name: "Git"
+            # level: 92
+          - name: "Linux"
+            # level: 90
+
+  - title: "Experience"
+    type: "timeline"
+    timeline_items:
+      - title: "Software Development Intern"
+        subtitle: "OnClick Innovations"
+        location: "Mohali, India"
+        period: "Aug 2025 – Present"
+        tech: "Node.js, Express.js, React, Python, Flask, Redis, BullMQ, FFmpeg, Docker, OpenAI, Deepgram, AWS S3"
+        bullets:
+          - "Built 4 production AI video generation pipelines (UGC, Veo, Template) orchestrating Google Gemini, HeyGen, ElevenLabs, and Google Veo — cutting ad production time from hours to minutes."
+          - "Architected an async job queue with BullMQ and Redis to handle concurrent AI workloads, with retry logic, per-job progress tracking, and credit metering across 5+ providers."
+          - "Engineered a template management system with RBAC publishing, tag/category search, B-roll upload, and a questionnaire-driven creation flow."
+          - "Delivered a Live Ambient Scribe POC in 3 days: real-time audio capture via Deepgram streamed to OpenAI for live SOAP note and differential diagnosis generation."
+      - title: "Backend Developer Intern"
+        subtitle: "Resolyte"
+        location: "Jammu, India"
+        period: "Mar 2025 – Aug 2025"
+        tech: "Go, PostgreSQL, gRPC, Docker, Kubernetes, Squirrel"
+        bullets:
+          - "Designed a high-performance query engine microservice from scratch in Go and PostgreSQL, consumed by 3+ downstream services."
+          - "Developed dynamic SQL generation with Squirrel and exposed type-safe gRPC APIs for inter-service communication across a distributed system."
+          - "Containerized with Docker and deployed on Kubernetes with CI/CD integration, achieving zero-downtime rollouts."
+
+  - title: "Projects"
+    type: "projects"
+    projects:
+      - name: "Authn-Service"
+        tagline: "Authentication Microservice"
+        tech: "Go · PostgreSQL · Redis · Docker"
+        url: "https://github.com/Arindam-Langer/authn-service"
+        bullets:
+          - "6-endpoint auth microservice with JWT access tokens, 7-day rotating refresh tokens, bcrypt hashing, and UUID v5 phone anonymization — zero raw PII stored."
+          - "Token rotation with reuse detection — a single replayed token instantly revokes every active session via Redis blocklist."
+          - "11,000 req/sec on core middleware, 1,500 req/sec on JWT verification hot path, 99% responses under 15ms."
+      - name: "OllamaChat"
+        tagline: "Privacy-First RAG Engine with TUI"
+        tech: "Go · pgvector · Ollama · Docker · Bubble Tea"
+        url: "https://github.com/Arindam-Langer/OllamaChat"
+        bullets:
+          - "Fully offline RAG pipeline: PDF ingestion, overlap-aware chunking, 768-dim vector embeddings via Ollama, cosine-similarity retrieval from Dockerized pgvector."
+          - "Terminal UI in Bubble Tea (Elm architecture) with streaming chat, multi-line input, and a file browser — zero external API calls, complete data privacy."
+      - name: "AI Farmer Assistant"
+        tagline: "Multimodal AI Chatbot for Agriculture"
+        tech: "Python · Flask · LangChain · Ollama"
+        url: "https://github.com/Arindam-Langer/AI-Assistant-For-Farmers"
+        bullets:
+          - "Multimodal AI chatbot for plant disease diagnosis from image and text inputs, fine-tuned Llama3 with RAG using LangChain and Chroma."
+          - "Integrated feedback loops and real-time data retrieval to iteratively improve response accuracy and usability."
+
+  - title: "Education"
+    type: "timeline"
+    timeline_items:
+      - title: "BTech in Computer Science and Engineering"
+        subtitle: "Central University of Jammu"
+        location: "Jammu, India"
+        period: "Nov 2022 – Aug 2026"
+        tech: "GPA: 7.6/10"
+        bullets:
+          - "Data Structures and Algorithms (DSA)"
+          - "Design and Analysis of Algorithms (DAA)"
+          - "Operating Systems (OS)"
+          - "Computer Networking"
+          - "Network Security"
+          - "Database Management Systems (DBMS)"
+          - "Computer Organization and Architecture"
+          - "Theory of Computation"
+          - "Software Engineering"
+          - "Artificial Intelligence"
+          - "Machine Learning"
+
+  - title: "Contact"
+    type: "key_value"
+    key_value_items:
+      - key: "Location"
+        value: "Jammu, India"
+      - key: "Email"
+        value: "arindamlanger@gmail.com"
+      - key: "Phone"
+        value: "+91-7006395984"
+      - key: "LinkedIn"
+        value: "linkedin.com/in/arindam-langer"
+      - key: "GitHub"
+        value: "github.com/Arindam-Langer"

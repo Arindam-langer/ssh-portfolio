@@ -18,11 +18,11 @@ type Experience struct {
 
 // Project represents a portfolio project
 type Project struct {
-	Name      string
-	Tagline   string
-	Tech      string
-	GitHubURL string
-	Bullets   []string
+	Name      string   `yaml:"name"`
+	Tagline   string   `yaml:"tagline"`
+	Tech      string   `yaml:"tech"`
+	GitHubURL string   `yaml:"url"`
+	Bullets   []string `yaml:"bullets"`
 }
 
 // Education represents an education entry

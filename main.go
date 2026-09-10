@@ -17,6 +17,7 @@ import (
 	"charm.land/wish/v2/activeterm"
 	"charm.land/wish/v2/bubbletea"
 	"charm.land/wish/v2/logging"
+	"github.com/Arindam-Langer/ssh-portfolio/internal/data"
 	"github.com/Arindam-Langer/ssh-portfolio/internal/tui"
 )
 
@@ -26,6 +27,11 @@ const (
 )
 
 func main() {
+	if err := data.LoadConfig("config.yaml"); err != nil {
+		log.Error("Could not load config.yaml", "error", err)
+		os.Exit(1)
+	}
+
 	s, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),
@@ -46,7 +52,20 @@ func main() {
 	fmt.Println()
 	fmt.Println("  ┌─────────────────────────────────────────────────┐")
 	fmt.Println("  │                                                 │")
-	fmt.Println("  │   🚀 Arindam's SSH Portfolio is running!        │")
+
+	text := fmt.Sprintf("🚀 %s's SSH Portfolio is running!", data.AppConfig.Profile.Name)
+	// Calculate padding to center or simply fit in the box. The box is 47 chars wide inside.
+	padLen := 47 - len([]rune(text))
+	if padLen < 0 {
+		padLen = 0
+	}
+	padding := ""
+	for i := 0; i < padLen; i++ {
+		padding += " "
+	}
+
+	fmt.Printf("  │   %s%s│\n", text, padding)
+
 	fmt.Println("  │                                                 │")
 	fmt.Printf("  │   Connect: ssh -p %s localhost              │\n", port)
 	fmt.Println("  │                                                 │")
