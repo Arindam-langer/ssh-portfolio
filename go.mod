@@ -3,12 +3,15 @@ module github.com/Arindam-Langer/ssh-portfolio
 go 1.26.5
 
 require (
-	charm.land/bubbles/v2 v2.1.1 // indirect
-	charm.land/bubbletea/v2 v2.0.8 // indirect
-	charm.land/lipgloss/v2 v2.0.5 // indirect
-	charm.land/log/v2 v2.0.0 // indirect
-	charm.land/ssh v0.4.2 // indirect
-	charm.land/wish/v2 v2.0.3 // indirect
+	charm.land/bubbletea/v2 v2.0.8
+	charm.land/lipgloss/v2 v2.0.5
+	charm.land/log/v2 v2.0.0
+	charm.land/ssh v0.4.2
+	charm.land/wish/v2 v2.0.3
+	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/keygen v0.5.4 // indirect
@@ -33,5 +36,4 @@ require (
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -53,7 +53,7 @@ func main() {
 	fmt.Println("  ┌─────────────────────────────────────────────────┐")
 	fmt.Println("  │                                                 │")
 
-	text := fmt.Sprintf("🚀 %s's SSH Portfolio is running!", data.AppConfig.Profile.Name)
+	text := fmt.Sprintf(" %s's SSH Portfolio is running!", data.AppConfig.Profile.Name)
 	// Calculate padding to center or simply fit in the box. The box is 47 chars wide inside.
 	padLen := 47 - len([]rune(text))
 	if padLen < 0 {
