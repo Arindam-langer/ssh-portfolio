@@ -11,16 +11,17 @@ profile:
 
 sections:
   - title: "About"
+    icon: ""
     type: "text"
     content: |
-      Backend engineer who builds things that survive production.
+      Backend engineer who builds systems that survive production.
 
       I design high-performance microservices in Go and Node.js, architect 
       AI/RAG pipelines that run fully offline, and ship containerized systems 
       on Kubernetes with zero-downtime deploys.
 
       Currently interning at OnClick Innovations where I've built 4 production 
-      AI video generation pipelines — cutting ad production from hours to minutes.
+      AI video generation pipelines — cutting ad production time from hours to minutes.
       Previously architected a query engine microservice at Resolyte consumed by 
       3+ downstream services.
 
@@ -28,80 +29,75 @@ sections:
       out of the user's way.
 
   - title: "Skills"
+    icon: ""
     type: "skill_list"
     categories:
       - name: "Languages"
+        icon: ""
         items:
           - name: "Go"
-            # level: 92
+            icon: ""
           - name: "JavaScript"
-            # level: 88
+            icon: ""
           - name: "Python"
-            # level: 82
+            icon: ""
           - name: "C"
-            # level: 70
+            icon: ""
           - name: "SQL"
-            # level: 85
+            icon: ""
       - name: "Frameworks"
+        icon: "󰅩"
         items:
           - name: "Node.js"
-            # level: 90
+            icon: ""
           - name: "Express.js"
-            # level: 88
           - name: "React"
-            # level: 75
+            icon: ""
           - name: "Flask"
-            # level: 78
           - name: "LangChainGo"
-            # level: 72
           - name: "Bubble Tea"
-            # level: 85
           - name: "gRPC"
-            # level: 82
       - name: "Databases"
+        icon: "󰆼"
         items:
           - name: "PostgreSQL"
-            # level: 90
+            icon: ""
           - name: "pgvector"
-            # level: 78
           - name: "MongoDB"
-            # level: 75
+            icon: ""
           - name: "Redis"
-            # level: 85
+            icon: ""
           - name: "BullMQ"
-            # level: 80
       - name: "AI & ML"
+        icon: "󰧑"
         items:
           - name: "Ollama"
-            # level: 82
           - name: "OpenAI API"
-            # level: 85
           - name: "Deepgram"
-            # level: 72
           - name: "Google Gemini"
-            # level: 78
           - name: "RAG Pipelines"
-            # level: 88
       - name: "DevOps"
+        icon: "󰒋"
         items:
           - name: "Docker"
-            # level: 90
+            icon: ""
           - name: "Kubernetes"
-            # level: 82
+            icon: "󱏓"
           - name: "AWS S3"
-            # level: 75
+            icon: ""
           - name: "FFmpeg"
-            # level: 70
           - name: "Git"
-            # level: 92
+            icon: ""
           - name: "Linux"
-            # level: 90
+            icon: ""
 
   - title: "Experience"
+    icon: ""
     type: "timeline"
     timeline_items:
       - title: "Software Development Intern"
         subtitle: "OnClick Innovations"
+        icon: "🏢"
         location: "Mohali, India"
         period: "Aug 2025 – Present"
         tech: "Node.js, Express.js, React, Python, Flask, Redis, BullMQ, FFmpeg, Docker, OpenAI, Deepgram, AWS S3"
@@ -112,6 +108,7 @@ sections:
           - "Delivered a Live Ambient Scribe POC in 3 days: real-time audio capture via Deepgram streamed to OpenAI for live SOAP note and differential diagnosis generation."
       - title: "Backend Developer Intern"
         subtitle: "Resolyte"
+        icon: "🏢"
         location: "Jammu, India"
         period: "Mar 2025 – Aug 2025"
         tech: "Go, PostgreSQL, gRPC, Docker, Kubernetes, Squirrel"
@@ -121,10 +118,12 @@ sections:
           - "Containerized with Docker and deployed on Kubernetes with CI/CD integration, achieving zero-downtime rollouts."
 
   - title: "Projects"
+    icon: ""
     type: "projects"
     projects:
       - name: "Authn-Service"
         tagline: "Authentication Microservice"
+        icon: "🔒"
         tech: "Go · PostgreSQL · Redis · Docker"
         url: "https://github.com/Arindam-Langer/authn-service"
         bullets:
@@ -133,6 +132,7 @@ sections:
           - "11,000 req/sec on core middleware, 1,500 req/sec on JWT verification hot path, 99% responses under 15ms."
       - name: "OllamaChat"
         tagline: "Privacy-First RAG Engine with TUI"
+        icon: "💬"
         tech: "Go · pgvector · Ollama · Docker · Bubble Tea"
         url: "https://github.com/Arindam-Langer/OllamaChat"
         bullets:
@@ -140,6 +140,7 @@ sections:
           - "Terminal UI in Bubble Tea (Elm architecture) with streaming chat, multi-line input, and a file browser — zero external API calls, complete data privacy."
       - name: "AI Farmer Assistant"
         tagline: "Multimodal AI Chatbot for Agriculture"
+        icon: "🌱"
         tech: "Python · Flask · LangChain · Ollama"
         url: "https://github.com/Arindam-Langer/AI-Assistant-For-Farmers"
         bullets:
@@ -147,10 +148,12 @@ sections:
           - "Integrated feedback loops and real-time data retrieval to iteratively improve response accuracy and usability."
 
   - title: "Education"
+    icon: ""
     type: "timeline"
     timeline_items:
       - title: "BTech in Computer Science and Engineering"
         subtitle: "Central University of Jammu"
+        icon: "🎓"
         location: "Jammu, India"
         period: "Nov 2022 – Aug 2026"
         tech: "GPA: 7.6/10"
@@ -168,15 +171,21 @@ sections:
           - "Machine Learning"
 
   - title: "Contact"
+    icon: "󰇮"
     type: "key_value"
     key_value_items:
       - key: "Location"
+        icon: "󰍎"
         value: "Jammu, India"
       - key: "Email"
+        icon: "󰇮"
         value: "arindamlanger@gmail.com"
       - key: "Phone"
+        icon: "󰏲"
         value: "+91-7006395984"
       - key: "LinkedIn"
+        icon: "󰌻"
         value: "linkedin.com/in/arindam-langer"
       - key: "GitHub"
+        icon: "󰊤"
         value: "github.com/Arindam-Langer"

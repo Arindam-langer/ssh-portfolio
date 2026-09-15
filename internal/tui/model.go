@@ -10,26 +10,6 @@ import (
 	"github.com/Arindam-Langer/ssh-portfolio/internal/data"
 )
 
-// Tab indices
-const (
-	tabAbout = iota
-	tabSkills
-	tabExperience
-	tabProjects
-	tabEducation
-	tabContact
-	tabCount
-)
-
-var tabNames = []string{
-	"  About",
-	"  Skills",
-	"  Experience",
-	"  Projects",
-	"  Education",
-	"  Contact",
-}
-
 // Phase represents the app lifecycle
 type phase int
 
@@ -55,29 +35,29 @@ type Model struct {
 	term   string
 
 	// State
-	phase           phase
-	activeTab       int
-	styles          Styles
-	showHelp        bool
-	splashStep      int
-	splashText      string
-	splashCharIdx   int
-	scrollOffset    int
+	phase         phase
+	activeTab     int
+	styles        Styles
+	showHelp      bool
+	splashStep    int
+	splashText    string
+	splashCharIdx int
+	scrollOffset  int
 
-	// Sub-models
-	projectExpanded []bool
+	// Sub-models / expansion tracking (secIdx_projIdx -> bool)
+	projectExpanded map[string]bool
 }
 
-// NewModel creates a fresh portfolio model using Tokyo Night theme
+// NewModel creates a fresh portfolio model
 func NewModel(term string, width, height int) Model {
 	m := Model{
 		width:           width,
 		height:          height,
 		term:            term,
 		phase:           phaseSplash,
-		activeTab:       tabAbout,
+		activeTab:       0,
 		styles:          newStyles(DefaultTheme),
-		projectExpanded: make([]bool, len(data.Projects)),
+		projectExpanded: make(map[string]bool),
 	}
 	return m
 }
@@ -129,16 +109,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	secCount := 0
+	if data.AppConfig != nil {
+		secCount = len(data.AppConfig.Sections)
+	}
+
 	switch msg.String() {
 	case "q":
 		return m, tea.Quit
 	case "tab", "l", "right":
-		m.activeTab = (m.activeTab + 1) % tabCount
-		m.scrollOffset = 0
+		if secCount > 0 {
+			m.activeTab = (m.activeTab + 1) % secCount
+			m.scrollOffset = 0
+		}
 		return m, nil
 	case "shift+tab", "h", "left":
-		m.activeTab = (m.activeTab - 1 + tabCount) % tabCount
-		m.scrollOffset = 0
+		if secCount > 0 {
+			m.activeTab = (m.activeTab - 1 + secCount) % secCount
+			m.scrollOffset = 0
+		}
 		return m, nil
 	case "j", "down":
 		m.scrollOffset++
@@ -149,46 +138,45 @@ func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case "enter":
-		if m.activeTab == tabProjects {
-			return m.toggleProject()
+		if secCount > 0 && m.activeTab < secCount {
+			if data.AppConfig.Sections[m.activeTab].Type == "projects" {
+				return m.toggleProject()
+			}
 		}
 		return m, nil
-	case "1":
-		m.activeTab = tabAbout
-		m.scrollOffset = 0
-	case "2":
-		m.activeTab = tabSkills
-		m.scrollOffset = 0
-	case "3":
-		m.activeTab = tabExperience
-		m.scrollOffset = 0
-	case "4":
-		m.activeTab = tabProjects
-		m.scrollOffset = 0
-	case "5":
-		m.activeTab = tabEducation
-		m.scrollOffset = 0
-	case "6":
-		m.activeTab = tabContact
-		m.scrollOffset = 0
+	case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+		idx := int(msg.String()[0] - '1')
+		if idx < secCount {
+			m.activeTab = idx
+			m.scrollOffset = 0
+		}
+		return m, nil
 	}
 	return m, nil
 }
 
 func (m Model) toggleProject() (Model, tea.Cmd) {
-	// Cycle through projects: find next expandable based on scroll position
-	idx := m.scrollOffset % len(data.Projects)
-	m.projectExpanded[idx] = !m.projectExpanded[idx]
+	if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
+		return m, nil
+	}
+	sec := data.AppConfig.Sections[m.activeTab]
+	if len(sec.Projects) == 0 {
+		return m, nil
+	}
+	idx := m.scrollOffset % len(sec.Projects)
+	key := fmt.Sprintf("%d_%d", m.activeTab, idx)
+	m.projectExpanded[key] = !m.projectExpanded[key]
 	return m, nil
 }
 
 func (m Model) updateSplash() (Model, tea.Cmd) {
-	if m.splashStep >= len(data.SplashFrames) {
+	frames := data.SplashFrames
+	if m.splashStep >= len(frames) {
 		m.phase = phaseMain
 		return m, nil
 	}
 
-	target := data.SplashFrames[m.splashStep]
+	target := frames[m.splashStep]
 	if m.splashCharIdx < len(target) {
 		m.splashCharIdx++
 		m.splashText = target[:m.splashCharIdx]
@@ -198,7 +186,7 @@ func (m Model) updateSplash() (Model, tea.Cmd) {
 	// Move to next frame
 	m.splashStep++
 	m.splashCharIdx = 0
-	if m.splashStep < len(data.SplashFrames) {
+	if m.splashStep < len(frames) {
 		m.splashText = ""
 	}
 	return m, tickCmd()
@@ -226,15 +214,26 @@ func (m Model) View() tea.View {
 func (m Model) viewSplash() string {
 	s := m.styles
 
-	logo := s.Logo.Render(data.Logo)
-	tagline := s.Subtitle.Render(data.Tagline)
+	logoStr := data.DefaultAsciiLogo
+	taglineStr := ""
+	if data.AppConfig != nil {
+		if data.AppConfig.Profile.AsciiLogo != "" {
+			logoStr = data.AppConfig.Profile.AsciiLogo
+		}
+		taglineStr = data.AppConfig.Profile.Tagline
+	}
+
+	logo := s.Logo.Render(logoStr)
+	tagline := s.Subtitle.Render(taglineStr)
+
+	frames := data.SplashFrames
 
 	// Build the progress display
 	var lines []string
-	for i := 0; i < m.splashStep; i++ {
-		lines = append(lines, s.Muted.Render("  ✓ "+data.SplashFrames[i]))
+	for i := 0; i < m.splashStep && i < len(frames); i++ {
+		lines = append(lines, s.Muted.Render("  ✓ "+frames[i]))
 	}
-	if m.splashStep < len(data.SplashFrames) {
+	if m.splashStep < len(frames) {
 		cursor := "▊"
 		lines = append(lines, s.Splash.Render("  → "+m.splashText+cursor))
 	}
@@ -268,21 +267,34 @@ func (m Model) viewMain() string {
 	tabsH := lipgloss.Height(tabs)
 	footerH := lipgloss.Height(footer)
 	contentH := m.height - headerH - tabsH - footerH - 2
+	if contentH < 5 {
+		contentH = 5
+	}
 
 	var body string
-	switch m.activeTab {
-	case tabAbout:
-		body = m.viewAbout()
-	case tabSkills:
-		body = m.viewSkills()
-	case tabExperience:
-		body = m.viewExperience()
-	case tabProjects:
-		body = m.viewProjects()
-	case tabEducation:
-		body = m.viewEducation()
-	case tabContact:
-		body = m.viewContact()
+	if data.AppConfig != nil && len(data.AppConfig.Sections) > 0 {
+		activeIdx := m.activeTab
+		if activeIdx >= len(data.AppConfig.Sections) {
+			activeIdx = 0
+		}
+		sec := data.AppConfig.Sections[activeIdx]
+
+		switch sec.Type {
+		case "text":
+			body = m.renderTextSection(sec)
+		case "skill_list":
+			body = m.renderSkillListSection(sec)
+		case "timeline":
+			body = m.renderTimelineSection(sec)
+		case "projects":
+			body = m.renderProjectsSection(sec)
+		case "key_value":
+			body = m.renderKeyValueSection(sec)
+		default:
+			body = m.renderFallbackSection(sec)
+		}
+	} else {
+		body = m.styles.Muted.Render("No sections configured.")
 	}
 
 	// Apply scroll offset
@@ -300,8 +312,13 @@ func (m Model) viewMain() string {
 	}
 	body = strings.Join(visibleLines, "\n")
 
+	contentWidth := m.width - 6
+	if contentWidth < 20 {
+		contentWidth = 20
+	}
+
 	content := m.styles.Content.
-		Width(m.width - 6).
+		Width(contentWidth).
 		Height(contentH).
 		Render(body)
 
@@ -316,8 +333,15 @@ func (m Model) viewMain() string {
 func (m Model) renderHeader() string {
 	s := m.styles
 
-	name := s.Title.Render("  " + data.PersonalInfo.Name)
-	role := s.Subtitle.Render(" " + data.Tagline)
+	nameStr := ""
+	taglineStr := ""
+	if data.AppConfig != nil {
+		nameStr = data.AppConfig.Profile.Name
+		taglineStr = data.AppConfig.Profile.Tagline
+	}
+
+	name := s.Title.Render("  " + nameStr)
+	role := s.Subtitle.Render(" " + taglineStr)
 
 	themeBadge := s.Tag.Render(DefaultTheme.Name)
 
@@ -335,11 +359,18 @@ func (m Model) renderTabs() string {
 	s := m.styles
 	var tabs []string
 
-	for i, name := range tabNames {
-		if i == m.activeTab {
-			tabs = append(tabs, s.TabActive.Render(name))
-		} else {
-			tabs = append(tabs, s.TabInactive.Render(name))
+	if data.AppConfig != nil {
+		for i, sec := range data.AppConfig.Sections {
+			title := sec.Title
+			if sec.Icon != "" {
+				title = sec.Icon + " " + sec.Title
+			}
+			title = "  " + title
+			if i == m.activeTab {
+				tabs = append(tabs, s.TabActive.Render(title))
+			} else {
+				tabs = append(tabs, s.TabInactive.Render(title))
+			}
 		}
 	}
 
@@ -373,11 +404,21 @@ func (m Model) viewHelp() string {
 
 	title := s.Title.Render("⌨  Keyboard Shortcuts")
 
+	secCount := 0
+	if data.AppConfig != nil {
+		secCount = len(data.AppConfig.Sections)
+	}
+
+	numKeyDesc := fmt.Sprintf("1-%d", secCount)
+	if secCount == 0 {
+		numKeyDesc = "1-N"
+	}
+
 	bindings := []struct{ key, desc string }{
 		{"tab / shift+tab", "Navigate between sections"},
 		{"← → / h l", "Navigate between sections"},
 		{"↑ ↓ / j k", "Scroll content"},
-		{"1-6", "Jump to section directly"},
+		{numKeyDesc, "Jump to section directly"},
 		{"enter", "Expand/collapse project details"},
 		{"?", "Toggle this help overlay"},
 		{"q / ctrl+c", "Quit the portfolio"},
@@ -398,80 +439,66 @@ func (m Model) viewHelp() string {
 }
 
 // ============================================================================
-// About Tab
+// Dynamic Section Renderers
 // ============================================================================
 
-func (m Model) viewAbout() string {
+func (m Model) renderTextSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  About Me")
-
-	// Build a nice about card
-	aboutCard := s.Card.Width(contentWidth).Render(
-		s.Body.Width(contentWidth - 6).Render(data.AboutText),
-	)
-
-	// Quick stats
-	stats := []struct{ label, value string }{
-		{"Location", data.PersonalInfo.Location},
-		{"Email", data.PersonalInfo.Email},
-		{"GitHub", data.PersonalInfo.GitHub},
-		{"LinkedIn", data.PersonalInfo.LinkedIn},
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
 	}
+	title := s.Heading.Render("  " + titleText)
 
-	var statLines []string
-	for _, st := range stats {
-		statLines = append(statLines,
-			fmt.Sprintf("  %s  %s",
-				s.Accent.Width(12).Render(st.label),
-				s.Body.Render(st.value),
-			),
-		)
-	}
-
-	statsCard := s.Card.Width(contentWidth).Render(
-		s.Heading.Render("  Quick Info") + "\n" +
-			strings.Join(statLines, "\n"),
+	card := s.Card.Width(contentWidth).Render(
+		s.Body.Width(contentWidth - 6).Render(sec.Content),
 	)
 
-	return lipgloss.JoinVertical(lipgloss.Left,
-		title,
-		aboutCard,
-		"",
-		statsCard,
-	)
+	return lipgloss.JoinVertical(lipgloss.Left, title, card)
 }
 
-// ============================================================================
-// Skills Tab
-// ============================================================================
-
-func (m Model) viewSkills() string {
+func (m Model) renderSkillListSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  Technical Skills")
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
+	}
+	title := s.Heading.Render("  " + titleText)
 
 	var sections []string
 	sections = append(sections, title)
 
-	for _, category := range data.SkillCategoryOrder {
-		skills := data.SkillCategories[category]
-
-		catTitle := s.Accent.Bold(true).Render("  " + category)
+	for _, category := range sec.Categories {
+		catName := category.Name
+		if category.Icon != "" {
+			catName = category.Icon + " " + catName
+		}
+		catTitle := s.Accent.Bold(true).Render("  " + catName)
 		var skillLines []string
 		skillLines = append(skillLines, catTitle)
 
-		for _, skill := range skills {
-			bar := renderSkillBar(s, skill.Name, skill.Level, contentWidth-12)
-			skillLines = append(skillLines, "  "+bar)
+		for _, skill := range category.Items {
+			name := skill.Name
+			if skill.Icon != "" {
+				name = skill.Icon + " " + name
+			}
+			if skill.Level > 0 {
+				bar := renderSkillBar(s, name, skill.Level, contentWidth-12)
+				skillLines = append(skillLines, "  "+bar)
+			} else {
+				line := fmt.Sprintf("  %s  %s", s.Bullet.Render("▸"), s.Body.Render(name))
+				skillLines = append(skillLines, line)
+			}
 		}
 
 		sections = append(sections,
@@ -500,54 +527,67 @@ func renderSkillBar(s Styles, name string, level int, maxWidth int) string {
 	return nameStr + fillStr + emptyStr + pctStr
 }
 
-// ============================================================================
-// Experience Tab
-// ============================================================================
-
-func (m Model) viewExperience() string {
+func (m Model) renderTimelineSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  Work Experience")
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
+	}
+	title := s.Heading.Render("  " + titleText)
 
 	var cards []string
 	cards = append(cards, title)
 
-	for i, exp := range data.Experiences {
-		header := fmt.Sprintf("%s  %s",
-			s.CardTitle.Render(exp.Title),
-			s.Muted.Render("@ "+exp.Company),
-		)
-		meta := fmt.Sprintf("  %s  │  %s",
-			s.Accent.Render(exp.Period),
-			s.Muted.Render(exp.Location),
-		)
-
-		var bullets []string
-		for _, b := range exp.Bullets {
-			wrapped := wrapText(b, contentWidth-10)
-			bullets = append(bullets, "  "+s.Bullet.Render("▸")+" "+s.Body.Width(contentWidth-10).Render(wrapped))
+	for i, item := range sec.TimelineItems {
+		itemTitle := item.Title
+		if item.Icon != "" {
+			itemTitle = item.Icon + " " + itemTitle
 		}
 
-		tech := s.Muted.Render("  Tech: ") + s.Accent.Render(exp.Tech)
+		var header string
+		if item.Subtitle != "" {
+			header = fmt.Sprintf("%s  %s",
+				s.CardTitle.Render("  "+itemTitle),
+				s.Muted.Render("@ "+item.Subtitle),
+			)
+		} else {
+			header = s.CardTitle.Render("  " + itemTitle)
+		}
 
-		content := strings.Join([]string{
-			header,
-			meta,
-			"",
-			strings.Join(bullets, "\n"),
-			"",
-			tech,
-		}, "\n")
+		var metaParts []string
+		if item.Period != "" {
+			metaParts = append(metaParts, s.Accent.Render(item.Period))
+		}
+		if item.Location != "" {
+			metaParts = append(metaParts, s.Muted.Render(item.Location))
+		}
+		meta := "  " + strings.Join(metaParts, "  │  ")
 
-		card := s.Card.Width(contentWidth).Render(content)
+		var lines []string
+		lines = append(lines, header)
+		if len(metaParts) > 0 {
+			lines = append(lines, meta)
+		}
+		if len(item.Bullets) > 0 {
+			lines = append(lines, "")
+			for _, b := range item.Bullets {
+				wrapped := wrapText(b, contentWidth-10)
+				lines = append(lines, "  "+s.Bullet.Render("▸")+" "+s.Body.Width(contentWidth-10).Render(wrapped))
+			}
+		}
+		if item.Tech != "" {
+			lines = append(lines, "", s.Muted.Render("  Info/Tech: ")+s.Accent.Render(item.Tech))
+		}
+
+		card := s.Card.Width(contentWidth).Render(strings.Join(lines, "\n"))
 		cards = append(cards, card)
 
-		// Add timeline connector between experiences
-		if i < len(data.Experiences)-1 {
+		if i < len(sec.TimelineItems)-1 {
 			connector := s.Muted.Render("       │")
 			cards = append(cards, connector)
 		}
@@ -556,34 +596,39 @@ func (m Model) viewExperience() string {
 	return strings.Join(cards, "\n")
 }
 
-// ============================================================================
-// Projects Tab
-// ============================================================================
-
-func (m Model) viewProjects() string {
+func (m Model) renderProjectsSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  Projects")
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
+	}
+	title := s.Heading.Render("  " + titleText)
 	hint := s.Muted.Render("  Use ↑/↓ to scroll, enter to expand/collapse")
 
 	var cards []string
 	cards = append(cards, title, hint, "")
 
-	for i, proj := range data.Projects {
+	for i, proj := range sec.Projects {
+		projName := proj.Name
+		if proj.Icon != "" {
+			projName = proj.Icon + " " + projName
+		}
 		header := fmt.Sprintf("%s  %s",
-			s.CardTitle.Render("  "+proj.Name),
+			s.CardTitle.Render("  "+projName),
 			s.Subtitle.Render("— "+proj.Tagline),
 		)
-		tech := s.Accent.Render("  "+proj.Tech)
-		link := s.Link.Render("  "+proj.GitHubURL)
+		tech := s.Accent.Render("  " + proj.Tech)
+		link := s.Link.Render("  " + proj.GitHubURL)
 
 		lines := []string{header, tech, link}
 
-		expanded := i < len(m.projectExpanded) && m.projectExpanded[i]
+		key := fmt.Sprintf("%d_%d", m.activeTab, i)
+		expanded := m.projectExpanded[key]
 		if expanded {
 			lines = append(lines, "")
 			for _, b := range proj.Bullets {
@@ -601,100 +646,65 @@ func (m Model) viewProjects() string {
 	return strings.Join(cards, "\n")
 }
 
-// ============================================================================
-// Education Tab
-// ============================================================================
-
-func (m Model) viewEducation() string {
+func (m Model) renderKeyValueSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  Education")
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
+	}
+	title := s.Heading.Render("  " + titleText)
 
-	edu := data.EducationInfo
-	content := fmt.Sprintf(
-		"%s\n%s\n\n  %s  │  %s\n  %s  %s",
-		s.CardTitle.Render("  "+edu.School),
-		s.Subtitle.Render("  "+edu.Degree),
-		s.Accent.Render(edu.Period),
-		s.Muted.Render(edu.Location),
-		s.Body.Render("CGPA: "),
-		s.Accent.Bold(true).Render(edu.GPA),
+	var kvLines []string
+	for _, kv := range sec.KeyValueItems {
+		keyText := kv.Key
+		if kv.Icon != "" {
+			keyText = kv.Icon + " " + keyText
+		}
+		var valStr string
+		if strings.HasPrefix(kv.Value, "http") || strings.Contains(kv.Value, ".com") || strings.Contains(kv.Value, "github") {
+			valStr = s.Link.Render(kv.Value)
+		} else {
+			valStr = s.Body.Render(kv.Value)
+		}
+		kvLines = append(kvLines,
+			fmt.Sprintf("  %s  %s",
+				s.Accent.Width(14).Render(keyText),
+				valStr,
+			),
+		)
+	}
+
+	card := s.Card.Width(contentWidth).Render(
+		strings.Join(kvLines, "\n"),
 	)
 
-	card := s.Card.Width(contentWidth).Render(content)
-
-	// Relevant Coursework Section
-	var courseLines []string
-	courseLines = append(courseLines, s.Heading.Render("  Relevant Coursework"))
-	for _, c := range edu.Coursework {
-		courseLines = append(courseLines, "  "+s.Bullet.Render("▸")+" "+s.Body.Render(c))
-	}
-
-	courseCard := s.Card.Width(contentWidth).Render(strings.Join(courseLines, "\n"))
-
-	// Add a "highlights" section
-	facts := []string{
-		"Built OllamaChat (a Bubble Tea TUI) during college",
-		"Shipped production microservices before graduating",
-		"This portfolio itself runs on Bubble Tea + Wish",
-	}
-
-	var factLines []string
-	factLines = append(factLines, s.Heading.Render("  Highlights"))
-	for _, f := range facts {
-		factLines = append(factLines, "  "+s.Bullet.Render("★")+" "+s.Body.Render(f))
-	}
-
-	factsCard := s.Card.Width(contentWidth).Render(strings.Join(factLines, "\n"))
-
-	return lipgloss.JoinVertical(lipgloss.Left, title, card, "", courseCard, "", factsCard)
+	return lipgloss.JoinVertical(lipgloss.Left, title, card)
 }
 
-// ============================================================================
-// Contact Tab
-// ============================================================================
-
-func (m Model) viewContact() string {
+func (m Model) renderFallbackSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
 	if contentWidth < 40 {
 		contentWidth = 40
 	}
 
-	title := s.Heading.Render("  Get In Touch")
-
-	info := data.PersonalInfo
-	contactLines := []string{
-		fmt.Sprintf("  %s  %s", s.Accent.Width(12).Render("Email"), s.Body.Render(info.Email)),
-		fmt.Sprintf("  %s  %s", s.Accent.Width(12).Render("Phone"), s.Body.Render(info.Phone)),
-		fmt.Sprintf("  %s  %s", s.Accent.Width(12).Render("LinkedIn"), s.Link.Render(info.LinkedIn)),
-		fmt.Sprintf("  %s  %s", s.Accent.Width(12).Render("GitHub"), s.Link.Render(info.GitHub)),
-		fmt.Sprintf("  %s  %s", s.Accent.Width(12).Render("Location"), s.Body.Render(info.Location)),
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + titleText
+	}
+	title := s.Heading.Render("  " + titleText)
+	body := s.Body.Width(contentWidth - 6).Render(sec.Content)
+	if body == "" {
+		body = s.Muted.Render("No content available for this section.")
 	}
 
-	contactCard := s.Card.Width(contentWidth).Render(
-		s.Heading.Render("  Contact Info") + "\n\n" +
-			strings.Join(contactLines, "\n"),
-	)
-
-	// Resume download info
-	resumeCard := s.Card.Width(contentWidth).Render(
-		s.Heading.Render("  Resume") + "\n\n" +
-			s.Body.Render("  Download my resume using SCP:") + "\n\n" +
-			s.Accent.Render("  scp -P 2222 localhost:resume ./arindam_resume.pdf") + "\n\n" +
-			s.Muted.Render("  Or connect via SFTP to browse available files."),
-	)
-
-	return lipgloss.JoinVertical(lipgloss.Left,
-		title,
-		contactCard,
-		"",
-		resumeCard,
-	)
+	card := s.Card.Width(contentWidth).Render(body)
+	return lipgloss.JoinVertical(lipgloss.Left, title, card)
 }
 
 // ============================================================================

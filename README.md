@@ -70,16 +70,16 @@ This checklist tracks the logical steps we'll take to implement the dynamic conf
 - `[x]` Update `config.yaml` to match the new dynamic `sections` array format.
 - `[x]` Update `main.go` to invoke `LoadConfig` on startup.
 
-## [ ] Commit 2: Dynamic Tabs & Core UI Refactor
-- `[ ]` Remove the hardcoded tab names and indices from `internal/tui/model.go`.
-- `[ ]` Update `NewModel` to generate tabs dynamically from the loaded configuration.
-- `[ ]` Refactor state tracking (like active tab index, scrolling) to be completely independent of fixed sections.
+## [x] Commit 2: Dynamic Tabs & Core UI Refactor
+- `[x]` Remove the hardcoded tab names and indices from `internal/tui/model.go`.
+- `[x]` Update `NewModel` to generate tabs dynamically from the loaded configuration.
+- `[x]` Refactor state tracking (like active tab index, scrolling) to be completely independent of fixed sections.
 
-## [ ] Commit 3: Dynamic View Rendering
-- `[ ]` Refactor the `View()` function in `model.go` to use a switch statement based on the active section's `Type` (e.g., text, timeline, skill_list, projects, key_value).
-- `[ ]` Migrate the old hardcoded rendering logic (from `data.go` constants) to the new dynamic renderers, pulling data from the active section.
+## [x] Commit 3: Dynamic View Rendering
+- `[x]` Refactor the `View()` function in `model.go` to use a switch statement based on the active section's `Type` (e.g., text, timeline, skill_list, projects, key_value).
+- `[x]` Migrate the old hardcoded rendering logic (from `data.go` constants) to the new dynamic renderers, pulling data from the active section.
 
-## [ ] Commit 4: Cleanup & Final Polish
-- `[ ]` Remove the old `internal/data/content.go` as it is now obsolete.
-- `[ ]` Ensure fallback values and error handling are robust if the user creates a malformed YAML.
-- `[ ]` Test rendering across all dynamic section types.
+## [x] Commit 4: Cleanup & Final Polish
+- `[x]` Remove the old `internal/data/content.go` as it is now obsolete.
+- `[x]` Ensure fallback values and error handling are robust if the user creates a malformed YAML.
+- `[x]` Test rendering across all dynamic section types.

@@ -2,7 +2,6 @@ package data
 
 import (
 	"os"
-	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -22,6 +21,7 @@ type Profile struct {
 
 type Section struct {
 	Title string `yaml:"title"`
+	Icon  string `yaml:"icon,omitempty"`
 	Type  string `yaml:"type"` // text, skill_list, timeline, projects, key_value
 
 	// For type: text
@@ -42,101 +42,71 @@ type Section struct {
 
 type SkillCategory struct {
 	Name  string  `yaml:"name"`
+	Icon  string  `yaml:"icon,omitempty"`
 	Items []Skill `yaml:"items"`
 }
+
+type Skill struct {
+	Name  string `yaml:"name"`
+	Icon  string `yaml:"icon,omitempty"`
+	Level int    `yaml:"level"` // 0-100
+}
+
 type TimelineItem struct {
 	Title    string   `yaml:"title"`
 	Subtitle string   `yaml:"subtitle"` // e.g. Company or Degree
+	Icon     string   `yaml:"icon,omitempty"`
 	Period   string   `yaml:"period"`
 	Location string   `yaml:"location"`
 	Bullets  []string `yaml:"bullets"`
 	Tech     string   `yaml:"tech"` // Optional string of tech stack
 }
 
+type Project struct {
+	Name      string   `yaml:"name"`
+	Tagline   string   `yaml:"tagline"`
+	Icon      string   `yaml:"icon,omitempty"`
+	Tech      string   `yaml:"tech"`
+	GitHubURL string   `yaml:"url"`
+	Bullets   []string `yaml:"bullets"`
+}
 
 type KeyValueItem struct {
 	Key   string `yaml:"key"`
+	Icon  string `yaml:"icon,omitempty"`
 	Value string `yaml:"value"`
 }
 
+var SplashFrames = []string{
+	"Establishing secure connection...",
+	"Loading portfolio modules...",
+	"Initializing Bubble Tea runtime...",
+	"Rendering terminal UI...",
+	"Welcome aboard.",
+}
+
+var DefaultAsciiLogo = `
+   █████╗ ██████╗ ██╗███╗   ██╗██████╗  █████╗ ███╗   ███╗
+  ██╔══██╗██╔══██╗██║████╗  ██║██╔══██╗██╔══██╗████╗ ████║
+  ███████║██████╔╝██║██╔██╗ ██║██║  ██║███████║██╔████╔██║
+  ██╔══██║██╔══██╗██║██║╚██╗██║██║  ██║██╔══██║██║╚██╔╝██║
+  ██║  ██║██║  ██║██║██║ ╚████║██████╔╝██║  ██║██║ ╚═╝ ██║
+  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝
+`
+
 func LoadConfig(path string) error {
-	data, err := os.ReadFile(path)
+	fileData, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 	var cfg Config
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
+	if err := yaml.Unmarshal(fileData, &cfg); err != nil {
 		return err
 	}
+	if cfg.Profile.AsciiLogo == "" {
+		cfg.Profile.AsciiLogo = DefaultAsciiLogo
+	}
 	AppConfig = &cfg
-	populateFromConfig(&cfg)
 	return nil
 }
 
-func populateFromConfig(cfg *Config) {
-	if cfg.Profile.AsciiLogo != "" {
-		Logo = cfg.Profile.AsciiLogo
-	}
-	if cfg.Profile.Tagline != "" {
-		Tagline = cfg.Profile.Tagline
-	}
-	if cfg.Profile.Name != "" {
-		PersonalInfo.Name = cfg.Profile.Name
-	}
-
-	for _, sec := range cfg.Sections {
-		switch sec.Title {
-		case "About":
-			AboutText = sec.Content
-		case "Skills":
-			SkillCategories = make(map[string][]Skill)
-			SkillCategoryOrder = []string{}
-			for _, cat := range sec.Categories {
-				SkillCategoryOrder = append(SkillCategoryOrder, cat.Name)
-				SkillCategories[cat.Name] = cat.Items
-			}
-		case "Experience":
-			Experiences = []Experience{}
-			for _, item := range sec.TimelineItems {
-				Experiences = append(Experiences, Experience{
-					Title:    item.Title,
-					Company:  item.Subtitle,
-					Location: item.Location,
-					Period:   item.Period,
-					Bullets:  item.Bullets,
-					Tech:     item.Tech,
-				})
-			}
-		case "Projects":
-			Projects = sec.Projects
-		case "Education":
-			if len(sec.TimelineItems) > 0 {
-				item := sec.TimelineItems[0]
-				gpa := strings.TrimSpace(strings.TrimPrefix(item.Tech, "GPA:"))
-				EducationInfo = Education{
-					Degree:     item.Title,
-					School:     item.Subtitle,
-					Location:   item.Location,
-					Period:     item.Period,
-					GPA:        gpa,
-					Coursework: item.Bullets,
-				}
-			}
-		case "Contact":
-			for _, kv := range sec.KeyValueItems {
-				switch kv.Key {
-				case "Email":
-					PersonalInfo.Email = kv.Value
-				case "Phone":
-					PersonalInfo.Phone = kv.Value
-				case "LinkedIn":
-					PersonalInfo.LinkedIn = kv.Value
-				case "GitHub":
-					PersonalInfo.GitHub = kv.Value
-				case "Location":
-					PersonalInfo.Location = kv.Value
-				}
-			}
-		}
-	}
-}
