@@ -130,7 +130,7 @@ func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	case "j", "down":
-		m.scrollOffset++
+		m.scrollOffset++ // causing infinite scroll need a fix.
 		return m, nil
 	case "k", "up":
 		if m.scrollOffset > 0 {

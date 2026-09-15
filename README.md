@@ -1,85 +1,130 @@
-# SSH TUI Portfolio — Arindam Langer
+#  SSH TUI Portfolio
 
-An SSH-accessible terminal portfolio built with **Go**, **Bubble Tea**, **Lip Gloss**, and **Wish**, featuring the custom **Arch** theme palette.
+An interactive, SSH-accessible terminal portfolio built with **Go**, **Wish**, and **Bubble Tea**. Showcase your experience, skills, projects, and contact details directly in anyone's terminal — zero client-side dependencies required beyond a standard `ssh` client.
 
 ```bash
 ssh -p 2222 localhost
 ```
 
-## Features
+---
 
-- 🎨 **Arch Theme** — Deep dark background (`#0C0D11`), elevated surface (`#171A25`), teal main accent (`#7EBAB5`), crisp white text (`#F6F5F5`), and muted accents (`#454864`)
-- ✨ **Animated Splash** — Typewriter-style intro with ASCII art
-- 📑 **6 Sections** — About, Skills, Experience, Projects, Education, Contact
-- 📊 **Skill Bars** — Visual progress bars for technical skills
-- 📂 **Expandable Projects** — Press Enter to expand/collapse project details
-- 📄 **Resume Download** — SCP your resume directly from the server
-- ⌨️ **Vim-style Navigation** — `h/j/k/l`, `tab`, number keys `1-6`
-- ❓ **Help Overlay** — Press `?` for keyboard shortcuts
-- 🐳 **Docker Ready** — Multi-stage `Dockerfile` & `docker-compose.yml` included
+## 󰒋 Features
 
-## Quick Start (Local)
+- 󰏘 **Arch Dark Theme** — Deep background (`#0C0D11`), elevated surfaces (`#171A25`), and crisp teal accents (`#7EBAB5`).
+- 󰒓 **100% Config-Driven** — Customize your entire portfolio in `config.yaml`. Add, remove, or reorder tabs without touching Go code.
+-  **5 Dynamic Section Types**:
+  - `text` — Free-form bio, about me, and markdown-friendly summaries.
+  - `skill_list` — Categorized technical skills with optional visual progress bars (0–100%).
+  - `timeline` — Work history, education, and milestones with dates, tags, and bullet points.
+  - `projects` — Project showcase with expandable cards (`Enter` to toggle details) and repo links.
+  - `key_value` — Clean two-column layout for contact information, socials, or specs.
+- 󰈔 **Direct Resume Download (SCP)** — Visitors can download your resume directly over SCP without leaving their terminal.
+-  **Vim & Number Navigation** — Move smoothly with `Tab`, `h/j/k/l`, arrow keys, or number keys `1–9`.
+- 󰋖 **Help Overlay** — Press `?` at any point to view keybindings.
+-  **Production & Container Ready** — Includes a multi-stage `Dockerfile` and `docker-compose.yml`.
+
+---
+
+##  Quick Start
+
+### 1. Clone & Setup Configuration
 
 ```bash
-# Build & run binary directly
+git clone https://github.com/Arindam-Langer/ssh-portfolio.git
+cd ssh-portfolio
+
+# Create your personal configuration from the annotated template
+cp config.example.yaml config.yaml
+```
+
+### 2. Run Locally (Go)
+
+```bash
+# Build & start the server
 go build -o ssh-portfolio .
 ./ssh-portfolio
+```
 
-# In another terminal:
+In a new terminal window:
+```bash
 ssh -p 2222 localhost
 ```
 
-## Quick Start (Docker)
+### 3. Run with Docker
 
 ```bash
 # Using Docker Compose
 docker compose up -d
 
-# Or building directly
+# Or using Docker directly
 docker build -t ssh-portfolio .
 docker run -d -p 2222:2222 --name ssh-portfolio ssh-portfolio
 ```
 
-## Keyboard Shortcuts
+---
+
+##  Configuration Guide
+
+All personal data, branding, and tabs are configured in `config.yaml`. See [config.example.yaml](config.example.yaml) for a fully annotated template.
+
+### Compulsory vs. Optional Fields
+
+| Field | Required? | Description |
+|---|---|---|
+| `profile.name` | **Required** | Your name/handle shown in SSH banners, titles, and footers. |
+| `profile.tagline` | *Optional* | Subtitle displayed beneath your name. |
+| `profile.ascii_logo` | *Optional* | Custom ASCII art banner (defaults to standard logo if omitted). |
+| `sections` | **Required** | List of tabs to render (must include at least 1). |
+| `sections[].title` | **Required** | The label shown on the navigation tab. |
+| `sections[].type` | **Required** | One of `text`, `skill_list`, `timeline`, `projects`, or `key_value`. |
+| `sections[].icon` | *Optional* | Nerd Font icon glyph preceding the tab title. |
+
+### Supported Section Types
+
+| Type | Intended Use | Key Fields |
+|---|---|---|
+| `text` | About Me / Philosophy | `content` (multiline text) |
+| `skill_list` | Languages, Frameworks, Cloud | `categories` → `name`, `items` (`name`, `icon`, `level`) |
+| `timeline` | Work Experience, Education | `timeline_items` → `title`, `subtitle`, `period`, `location`, `bullets`, `tech` |
+| `projects` | GitHub / Highlighted Work | `projects` → `name`, `tagline`, `tech`, `url`, `bullets` |
+| `key_value` | Contact, Socials, Hardware Specs | `key_value_items` → `key`, `value`, `icon` |
+
+---
+
+##  Keyboard Shortcuts
 
 | Key | Action |
-|-----|--------|
-| `tab` / `shift+tab` | Navigate sections |
+|---|---|
+| `Tab` / `Shift+Tab` | Next / Previous section |
 | `← →` / `h l` | Navigate sections |
-| `↑ ↓` / `j k` | Scroll content |
-| `1`-`6` | Jump to section |
-| `enter` | Expand/collapse project |
-| `?` | Help overlay |
-| `q` / `ctrl+c` | Quit |
+| `↑ ↓` / `j k` | Scroll section content |
+| `1` – `9` | Jump directly to section tab |
+| `Enter` | Expand / collapse project details |
+| `?` | Toggle help overlay |
+| `q` / `Ctrl+C` | Disconnect / Exit |
 
-## Resume Download via SCP
+---
+
+## 󰈔 SCP Resume Download
+
+Place your PDF resume inside the `resume/` directory (e.g. `resume/arindam_resume.pdf`). Visitors can fetch it directly using:
 
 ```bash
 scp -P 2222 localhost:resume/arindam_resume.pdf ./
 ```
 
+---
 
-#### Current To-Do's
-# Dynamic Config Refactoring Tasks
+## 󰒍 Deploying to a VPS / Cloud
 
-This checklist tracks the logical steps we'll take to implement the dynamic configuration architecture. We will pause after each major step (commit) so you can review the code and commit it yourself.
+To run this as a public SSH service on port `22` or `2222`:
 
-## [x] Commit 1: Configuration Engine
-- `[x]` Define new dynamic structs in `internal/data/config.go` to represent Sections and flexible content types.
-- `[x]` Write the `LoadConfig(path string)` function to read `config.yaml`.
-- `[x]` Update `config.yaml` to match the new dynamic `sections` array format.
-- `[x]` Update `main.go` to invoke `LoadConfig` on startup.
-
-## [x] Commit 2: Dynamic Tabs & Core UI Refactor
-- `[x]` Remove the hardcoded tab names and indices from `internal/tui/model.go`.
-- `[x]` Update `NewModel` to generate tabs dynamically from the loaded configuration.
-- `[x]` Refactor state tracking (like active tab index, scrolling) to be completely independent of fixed sections.
-
-## [x] Commit 3: Dynamic View Rendering
-- `[x]` Refactor the `View()` function in `model.go` to use a switch statement based on the active section's `Type` (e.g., text, timeline, skill_list, projects, key_value).
-- `[x]` Migrate the old hardcoded rendering logic (from `data.go` constants) to the new dynamic renderers, pulling data from the active section.
-
-## [x] Commit 4: Cleanup & Final Polish
-- `[x]` Remove the old `internal/data/content.go` as it is now obsolete.
-- `[x]` Ensure fallback values and error handling are robust if the user creates a malformed YAML.
-- `[x]` Test rendering across all dynamic section types.
+1. Forward port `2222` on your cloud firewall / security group.
+2. Run via Docker Compose:
+   ```bash
+   docker compose up -d
+   ```
+3. Share your command with recruiters and colleagues:
+   ```bash
+   ssh yourdomain.com -p 2222
+   ```

@@ -1,7 +1,9 @@
 package data
 
 import (
+	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -86,21 +88,40 @@ var SplashFrames = []string{
 }
 
 var DefaultAsciiLogo = `
-   █████╗ ██████╗ ██╗███╗   ██╗██████╗  █████╗ ███╗   ███╗
-  ██╔══██╗██╔══██╗██║████╗  ██║██╔══██╗██╔══██╗████╗ ████║
-  ███████║██████╔╝██║██╔██╗ ██║██║  ██║███████║██╔████╔██║
-  ██╔══██║██╔══██╗██║██║╚██╗██║██║  ██║██╔══██║██║╚██╔╝██║
-  ██║  ██║██║  ██║██║██║ ╚████║██████╔╝██║  ██║██║ ╚═╝ ██║
-  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝
+▄▖▄▖▖▖  ▄▖    ▗ ▐▘  ▜ ▘  
+▚ ▚ ▙▌  ▙▌▛▌▛▘▜▘▜▘▛▌▐ ▌▛▌
+▄▌▄▌▌▌  ▌ ▙▌▌ ▐▖▐ ▙▌▐▖▌▙▌
+                         
 `
+
+func (c *Config) Validate() error {
+	if strings.TrimSpace(c.Profile.Name) == "" {
+		return fmt.Errorf("'profile.name' is required in config.yaml")
+	}
+	if len(c.Sections) == 0 {
+		return fmt.Errorf("at least one section is required under 'sections' in config.yaml")
+	}
+	for i, sec := range c.Sections {
+		if strings.TrimSpace(sec.Title) == "" {
+			return fmt.Errorf("section #%d is missing a 'title' in config.yaml", i+1)
+		}
+		if strings.TrimSpace(sec.Type) == "" {
+			return fmt.Errorf("section '%s' is missing a 'type' in config.yaml", sec.Title)
+		}
+	}
+	return nil
+}
 
 func LoadConfig(path string) error {
 	fileData, err := os.ReadFile(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read %s: %w", path, err)
 	}
 	var cfg Config
 	if err := yaml.Unmarshal(fileData, &cfg); err != nil {
+		return fmt.Errorf("failed to parse %s: %w", path, err)
+	}
+	if err := cfg.Validate(); err != nil {
 		return err
 	}
 	if cfg.Profile.AsciiLogo == "" {
@@ -109,4 +130,3 @@ func LoadConfig(path string) error {
 	AppConfig = &cfg
 	return nil
 }
-
