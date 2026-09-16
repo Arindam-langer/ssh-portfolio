@@ -8,6 +8,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/Arindam-Langer/ssh-portfolio/internal/data"
+	"github.com/charmbracelet/bubbles/viewport"
 )
 
 // Phase represents the app lifecycle
@@ -43,7 +44,7 @@ type Model struct {
 	splashText    string
 	splashCharIdx int
 	scrollOffset  int
-
+	viewport      viewport.Model
 	// Sub-models / expansion tracking (secIdx_projIdx -> bool)
 	projectExpanded map[string]bool
 }
@@ -58,7 +59,9 @@ func NewModel(term string, width, height int) Model {
 		activeTab:       0,
 		styles:          newStyles(DefaultTheme),
 		projectExpanded: make(map[string]bool),
+		viewport:        viewport.New(width, height),
 	}
+	m.updateViewport()
 	return m
 }
 
@@ -72,6 +75,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		m.updateViewport()
 		return m, nil
 
 	case tickMsg:
@@ -121,26 +125,34 @@ func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if secCount > 0 {
 			m.activeTab = (m.activeTab + 1) % secCount
 			m.scrollOffset = 0
+			m.viewport.GotoTop()
+			m.updateViewport()
 		}
 		return m, nil
 	case "shift+tab", "h", "left":
 		if secCount > 0 {
 			m.activeTab = (m.activeTab - 1 + secCount) % secCount
 			m.scrollOffset = 0
+			m.viewport.GotoTop()
+			m.updateViewport()
 		}
 		return m, nil
 	case "j", "down":
-		m.scrollOffset++ // causing infinite scroll need a fix.
+		m.viewport.ScrollDown(1)
+		// m.scrollOffset++ // causing infinite scroll need a fix.
 		return m, nil
 	case "k", "up":
-		if m.scrollOffset > 0 {
-			m.scrollOffset--
-		}
+		m.viewport.ScrollUp(1)
+		// if m.scrollOffset > 0 {
+		// 	m.scrollOffset--
+		// }
 		return m, nil
 	case "enter":
 		if secCount > 0 && m.activeTab < secCount {
 			if data.AppConfig.Sections[m.activeTab].Type == "projects" {
-				return m.toggleProject()
+				m, cmd := m.toggleProject()
+				m.updateViewport()
+				return m, cmd
 			}
 		}
 		return m, nil
@@ -149,6 +161,8 @@ func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if idx < secCount {
 			m.activeTab = idx
 			m.scrollOffset = 0
+			m.viewport.GotoTop()
+			m.updateViewport()
 		}
 		return m, nil
 	}
@@ -207,9 +221,7 @@ func (m Model) View() tea.View {
 	return v
 }
 
-// ============================================================================
 // Splash Screen
-// ============================================================================
 
 func (m Model) viewSplash() string {
 	s := m.styles
@@ -257,21 +269,9 @@ func (m Model) viewSplash() string {
 // Main View
 // ============================================================================
 
-func (m Model) viewMain() string {
-	header := m.renderHeader()
-	tabs := m.renderTabs()
-	footer := m.renderFooter()
-
-	// Calculate content area height
-	headerH := lipgloss.Height(header)
-	tabsH := lipgloss.Height(tabs)
-	footerH := lipgloss.Height(footer)
-	contentH := m.height - headerH - tabsH - footerH - 2
-	if contentH < 5 {
-		contentH = 5
-	}
-
+func (m Model) renderActiveSection() string {
 	var body string
+
 	if data.AppConfig != nil && len(data.AppConfig.Sections) > 0 {
 		activeIdx := m.activeTab
 		if activeIdx >= len(data.AppConfig.Sections) {
@@ -297,25 +297,86 @@ func (m Model) viewMain() string {
 		body = m.styles.Muted.Render("No sections configured.")
 	}
 
-	// Apply scroll offset
-	bodyLines := strings.Split(body, "\n")
-	offset := m.scrollOffset
-	if offset > len(bodyLines)-1 {
-		offset = len(bodyLines) - 1
+	return body
+}
+
+// updateViewport calculates the current terminal content area and updates
+// the viewport model. This must run from Update, not View, because
+// viewport.SetContent mutates the viewport state.
+func (m *Model) updateViewport() {
+	header := m.renderHeader()
+	tabs := m.renderTabs()
+	footer := m.renderFooter()
+
+	headerH := lipgloss.Height(header)
+	tabsH := lipgloss.Height(tabs)
+	footerH := lipgloss.Height(footer)
+
+	contentH := m.height - headerH - tabsH - footerH - 2
+	if contentH < 5 {
+		contentH = 5
 	}
-	if offset < 0 {
-		offset = 0
-	}
-	visibleLines := bodyLines[offset:]
-	if len(visibleLines) > contentH {
-		visibleLines = visibleLines[:contentH]
-	}
-	body = strings.Join(visibleLines, "\n")
 
 	contentWidth := m.width - 6
 	if contentWidth < 20 {
 		contentWidth = 20
 	}
+
+	// The viewport is rendered inside Content, which may have padding/borders.
+	// Its usable size must exclude that style's frame, otherwise the viewport
+	// thinks it can display more lines than the outer Content box can actually
+	// show. That makes the final lines appear unreachable.
+	viewportWidth := contentWidth - m.styles.Content.GetHorizontalFrameSize()
+	viewportHeight := contentH - m.styles.Content.GetVerticalFrameSize()
+
+	if viewportWidth < 1 {
+		viewportWidth = 1
+	}
+	if viewportHeight < 1 {
+		viewportHeight = 1
+	}
+
+	m.viewport.Width = viewportWidth
+	m.viewport.Height = viewportHeight
+	m.viewport.SetContent(m.renderActiveSection())
+}
+
+func (m Model) viewMain() string {
+	header := m.renderHeader()
+	tabs := m.renderTabs()
+	footer := m.renderFooter()
+
+	headerH := lipgloss.Height(header)
+	tabsH := lipgloss.Height(tabs)
+	footerH := lipgloss.Height(footer)
+
+	contentH := m.height - headerH - tabsH - footerH - 2
+	if contentH < 5 {
+		contentH = 5
+	}
+
+	contentWidth := m.width - 6
+	if contentWidth < 20 {
+		contentWidth = 20
+	}
+
+	// Old manual scroll logic kept for reference:
+	// bodyLines := strings.Split(body, "\n")
+	// offset := m.scrollOffset
+	// if offset > len(bodyLines)-1 {
+	// 	offset = len(bodyLines) - 1
+	// }
+	// if offset < 0 {
+	// 	offset = 0
+	// }
+	// visibleLines := bodyLines[offset:]
+	// if len(visibleLines) > contentH {
+	// 	visibleLines = visibleLines[:contentH]
+	// }
+	// body = strings.Join(visibleLines, "\n")
+
+	// The viewport is updated in Update(). View() only reads its current state.
+	body := m.viewport.View()
 
 	content := m.styles.Content.
 		Width(contentWidth).
@@ -395,9 +456,7 @@ func (m Model) renderFooter() string {
 	return "\n" + s.Footer.Render(strings.Join(parts, "  │  "))
 }
 
-// ============================================================================
 // Help Overlay
-// ============================================================================
 
 func (m Model) viewHelp() string {
 	s := m.styles
@@ -438,9 +497,7 @@ func (m Model) viewHelp() string {
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, card)
 }
 
-// ============================================================================
 // Dynamic Section Renderers
-// ============================================================================
 
 func (m Model) renderTextSection(sec data.Section) string {
 	s := m.styles
@@ -707,9 +764,7 @@ func (m Model) renderFallbackSection(sec data.Section) string {
 	return lipgloss.JoinVertical(lipgloss.Left, title, card)
 }
 
-// ============================================================================
 // Utilities
-// ============================================================================
 
 func wrapText(text string, maxWidth int) string {
 	if maxWidth <= 0 || len(text) <= maxWidth {
