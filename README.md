@@ -107,10 +107,10 @@ All personal data, branding, and tabs are configured in `config.yaml`. See [conf
 
 ## 󰈔 SCP Resume Download
 
-Place your PDF resume inside the `resume/` directory (e.g. `resume/arindam_resume.pdf`). Visitors can fetch it directly using:
+Place your PDF resume inside the `resume/` directory (e.g. `resume/sample_resume.pdf`). Visitors can fetch it directly using:
 
 ```bash
-scp -P 2222 localhost:resume/arindam_resume.pdf ./
+scp -P 2222 localhost:resume/sample_resume.pdf ./
 ```
 
 ---

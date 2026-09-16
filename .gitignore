@@ -35,3 +35,4 @@ coverage.html
 .idea/
 .DS_Store
 Thumbs.db
+config.main.yaml

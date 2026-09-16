@@ -1,195 +1,146 @@
+# ==============================================================================
+# SSH Portfolio Configuration Template
+# ==============================================================================
+# To use this:
+# 1. Copy this file: cp config.example.yaml config.yaml
+# 2. Edit the values below with your own information.
+# 3. Fields marked [REQUIRED] must be provided.
+#    Fields marked [OPTIONAL] can be customized or deleted.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Profile Information
+# ------------------------------------------------------------------------------
 profile:
-  name: "Arindam Langer"
-  tagline: "Backend Engineer · Go & Node.js · AI Pipeline Architect"
-  ascii_logo: |
+  name: "Jane Doe"                       # [REQUIRED] Your full name or handle (shown in header and SSH banner)
+  tagline: "Software Engineer · Systems" # [OPTIONAL] Subtitle shown under your name
+  ascii_logo: |                          # [OPTIONAL] Custom ASCII banner. If omitted, a default banner is used.
     # ······························································
-    # :                                                            :
-    # :                                                            :
-    # :   __ __            ___           _    __       _ _         :
-    # :  / _/ _\ /\  /\   / _ \___  _ __| |_ / _| ___ | (_) ___    :
-    # :  \ \\ \ / /_/ /  / /_)/ _ \| '__| __| |_ / _ \| | |/ _ \   :
-    # :  _\ _\ / __  /  / ___| (_) | |  | |_|  _| (_) | | | (_) |  :
-    # :  \__\__\/ /_/   \/    \___/|_|   \__|_|  \___/|_|_|\___/   :
-    # :                                                            :
-    # :                                                            :
+    # :   ____       _   _   _   ___             _                 :
+    # :  |  _ \ ___ | |_| |_(_) / _ \ _   _  ___| |_               :
+    # :  | |_) / _ \| __| __| |/ /_\/| | | |/ _ \ __|              :
+    # :  |  __/ (_) | |_| |_| / /_\\ | |_| |  __/ |_               :
+    # :  |_|   \___/ \__|\__|_|\____/ \__,_|\___|\__|              :
     # ······························································
+
+# ------------------------------------------------------------------------------
+# Navigation Sections (Tabs)
+# [REQUIRED] Must have at least 1 section.
+# Tabs appear in the exact order listed below.
+#
+# Supported section types:
+#   1. text        - Free-form text or bio
+#   2. skill_list  - Categorized skills with optional progress bars (0-100)
+#   3. timeline    - Work experience, education, or history milestones
+#   4. projects    - Expandable showcase projects
+#   5. key_value   - Contact info, social links, or specs
+# ------------------------------------------------------------------------------
 sections:
-  - title: "About"
-    icon: ""
-    type: "text"
-    content: |
-      Backend engineer who builds systems that survive production.
 
-      I design high-performance microservices in Go and Node.js, architect 
-      AI/RAG pipelines that run fully offline, and ship containerized systems 
-      on Kubernetes with zero-downtime deploys.
+  # ----------------------------------------------------------------------------
+  # 1. Text Section (e.g., About / Bio)
+  # ----------------------------------------------------------------------------
+  - title: "About"                       # [REQUIRED] Tab name
+    icon: ""                            # [OPTIONAL] Nerd Font icon
+    type: "text"                         # [REQUIRED] Section type
+    content: |                           # [REQUIRED for 'text']
+      Hello! I'm a software engineer passionate about building reliable,
+      high-throughput systems and clean command-line tools.
 
-      Currently interning at OnClick Innovations where I've built 4 production 
-      AI video generation pipelines — cutting ad production time from hours to minutes.
-      Previously architected a query engine microservice at Resolyte consumed by 
-      3+ downstream services.
+      Feel free to explore my experience and projects using the tabs above.
 
-      I believe great software is invisible — it just works, scales, and stays 
-      out of the user's way.
-
-  - title: "Skills"
-    icon: ""
-    type: "skill_list"
-    categories:
-      - name: "Languages"
-        icon: ""
+  # ----------------------------------------------------------------------------
+  # 2. Skill List Section
+  # ----------------------------------------------------------------------------
+  - title: "Skills"                      # [REQUIRED] Tab name
+    icon: ""                            # [OPTIONAL] Nerd Font icon
+    type: "skill_list"                   # [REQUIRED] Section type
+    categories:                          # [REQUIRED for 'skill_list']
+      - name: "Languages"                # Category name
+        icon: ""                        # [OPTIONAL] Category icon
         items:
-          - name: "Go"
-            icon: ""
-          - name: "JavaScript"
-            icon: ""
+          - name: "Go"                   # [REQUIRED] Skill name
+            icon: ""                    # [OPTIONAL] Skill icon
+            level: 90                    # [OPTIONAL] Proficiency percentage (0-100)
           - name: "Python"
             icon: ""
-          - name: "C"
-            icon: ""
-          - name: "SQL"
-            icon: ""
-      - name: "Frameworks"
-        icon: "󰅩"
-        items:
-          - name: "Node.js"
-            icon: ""
-          - name: "Express.js"
-          - name: "React"
-            icon: ""
-          - name: "Flask"
-          - name: "LangChainGo"
-          - name: "Bubble Tea"
-          - name: "gRPC"
-      - name: "Databases"
+            level: 80
+          - name: "TypeScript"
+            icon: ""
+            level: 75
+
+      - name: "Databases & Tools"
         icon: "󰆼"
         items:
           - name: "PostgreSQL"
             icon: ""
-          - name: "pgvector"
-          - name: "MongoDB"
-            icon: ""
-          - name: "Redis"
-            icon: ""
-          - name: "BullMQ"
-      - name: "AI & ML"
-        icon: "󰧑"
-        items:
-          - name: "Ollama"
-          - name: "OpenAI API"
-          - name: "Deepgram"
-          - name: "Google Gemini"
-          - name: "RAG Pipelines"
-      - name: "DevOps"
-        icon: "󰒋"
-        items:
+            level: 85
           - name: "Docker"
             icon: ""
-          - name: "Kubernetes"
-            icon: "󱏓"
-          - name: "AWS S3"
-            icon: ""
-          - name: "FFmpeg"
-          - name: "Git"
-            icon: ""
+            level: 80
           - name: "Linux"
             icon: ""
+            level: 90
 
-  - title: "Experience"
-    icon: ""
-    type: "timeline"
-    timeline_items:
-      - title: "Software Development Intern"
-        subtitle: "OnClick Innovations"
-        icon: "🏢"
-        location: "Mohali, India"
-        period: "Aug 2025 – Present"
-        tech: "Node.js, Express.js, React, Python, Flask, Redis, BullMQ, FFmpeg, Docker, OpenAI, Deepgram, AWS S3"
-        bullets:
-          - "Built 4 production AI video generation pipelines (UGC, Veo, Template) orchestrating Google Gemini, HeyGen, ElevenLabs, and Google Veo — cutting ad production time from hours to minutes."
-          - "Architected an async job queue with BullMQ and Redis to handle concurrent AI workloads, with retry logic, per-job progress tracking, and credit metering across 5+ providers."
-          - "Engineered a template management system with RBAC publishing, tag/category search, B-roll upload, and a questionnaire-driven creation flow."
-          - "Delivered a Live Ambient Scribe POC in 3 days: real-time audio capture via Deepgram streamed to OpenAI for live SOAP note and differential diagnosis generation."
-      - title: "Backend Developer Intern"
-        subtitle: "Resolyte"
-        icon: "🏢"
-        location: "Jammu, India"
-        period: "Mar 2025 – Aug 2025"
-        tech: "Go, PostgreSQL, gRPC, Docker, Kubernetes, Squirrel"
-        bullets:
-          - "Designed a high-performance query engine microservice from scratch in Go and PostgreSQL, consumed by 3+ downstream services."
-          - "Developed dynamic SQL generation with Squirrel and exposed type-safe gRPC APIs for inter-service communication across a distributed system."
-          - "Containerized with Docker and deployed on Kubernetes with CI/CD integration, achieving zero-downtime rollouts."
+  # ----------------------------------------------------------------------------
+  # 3. Timeline Section (Work Experience / Education)
+  # ----------------------------------------------------------------------------
+  - title: "Experience"                  # [REQUIRED] Tab name
+    icon: ""                            # [OPTIONAL] Nerd Font icon
+    type: "timeline"                     # [REQUIRED] Section type
+    timeline_items:                      # [REQUIRED for 'timeline']
+      - title: "Senior Backend Engineer" # [REQUIRED] Role or Degree
+        subtitle: "Acme Corp"            # [REQUIRED] Company or Institution
+        icon: "󰞏"                        # [OPTIONAL] Icon
+        period: "2023 - Present"         # [OPTIONAL] Date range
+        location: "San Francisco, CA"    # [OPTIONAL] Location
+        tech: "Go · Kubernetes · gRPC"   # [OPTIONAL] Tech stack summary
+        bullets:                         # [OPTIONAL] Bullet points
+          - "Architected real-time streaming services handling 50k+ req/sec."
+          - "Reduced p99 latency by 35% through connection pooling and caching."
 
-  - title: "Projects"
-    icon: ""
-    type: "projects"
-    projects:
-      - name: "Authn-Service"
-        tagline: "Authentication Microservice"
-        icon: "🔒"
-        tech: "Go · PostgreSQL · Redis · Docker"
-        url: "https://github.com/Arindam-Langer/authn-service"
+      - title: "B.S. in Computer Science"
+        subtitle: "University of Technology"
+        period: "2019 - 2023"
+        location: "Boston, MA"
         bullets:
-          - "6-endpoint auth microservice with JWT access tokens, 7-day rotating refresh tokens, bcrypt hashing, and UUID v5 phone anonymization — zero raw PII stored."
-          - "Token rotation with reuse detection — a single replayed token instantly revokes every active session via Redis blocklist."
-          - "11,000 req/sec on core middleware, 1,500 req/sec on JWT verification hot path, 99% responses under 15ms."
-      - name: "OllamaChat"
-        tagline: "Privacy-First RAG Engine with TUI"
-        icon: "💬"
-        tech: "Go · pgvector · Ollama · Docker · Bubble Tea"
-        url: "https://github.com/Arindam-Langer/OllamaChat"
-        bullets:
-          - "Fully offline RAG pipeline: PDF ingestion, overlap-aware chunking, 768-dim vector embeddings via Ollama, cosine-similarity retrieval from Dockerized pgvector."
-          - "Terminal UI in Bubble Tea (Elm architecture) with streaming chat, multi-line input, and a file browser — zero external API calls, complete data privacy."
-      - name: "AI Farmer Assistant"
-        tagline: "Multimodal AI Chatbot for Agriculture"
-        icon: "🌱"
-        tech: "Python · Flask · LangChain · Ollama"
-        url: "https://github.com/Arindam-Langer/AI-Assistant-For-Farmers"
-        bullets:
-          - "Multimodal AI chatbot for plant disease diagnosis from image and text inputs, fine-tuned Llama3 with RAG using LangChain and Chroma."
-          - "Integrated feedback loops and real-time data retrieval to iteratively improve response accuracy and usability."
+          - "Graduated Magna Cum Laude with honors in distributed computing."
 
-  - title: "Education"
-    icon: ""
-    type: "timeline"
-    timeline_items:
-      - title: "BTech in Computer Science and Engineering"
-        subtitle: "Central University of Jammu"
-        icon: "🎓"
-        location: "Jammu, India"
-        period: "Nov 2022 – Aug 2026"
-        tech: "GPA: 7.6/10"
-        bullets:
-          - "Data Structures and Algorithms (DSA)"
-          - "Design and Analysis of Algorithms (DAA)"
-          - "Operating Systems (OS)"
-          - "Computer Networking"
-          - "Network Security"
-          - "Database Management Systems (DBMS)"
-          - "Computer Organization and Architecture"
-          - "Theory of Computation"
-          - "Software Engineering"
-          - "Artificial Intelligence"
-          - "Machine Learning"
+  # ----------------------------------------------------------------------------
+  # 4. Projects Section (Expandable Cards)
+  # ----------------------------------------------------------------------------
+  - title: "Projects"                    # [REQUIRED] Tab name
+    icon: ""                            # [OPTIONAL] Nerd Font icon
+    type: "projects"                     # [REQUIRED] Section type
+    projects:                            # [REQUIRED for 'projects']
+      - name: "ssh-portfolio"            # [REQUIRED] Project title
+        tagline: "SSH-accessible TUI"    # [OPTIONAL] Brief description
+        icon: "󰒋"                        # [OPTIONAL] Icon
+        tech: "Go · Wish · Bubble Tea"   # [OPTIONAL] Technologies used
+        url: "https://github.com/example/ssh-portfolio" # [OPTIONAL] Repo link
+        bullets:                         # [OPTIONAL] Feature list / details
+          - "Config-driven dynamic tabs and layouts."
+          - "Supports SCP resume download and custom theme palettes."
 
-  - title: "Contact"
-    icon: "󰇮"
-    type: "key_value"
-    key_value_items:
-      - key: "Location"
-        icon: "󰍎"
-        value: "Jammu, India"
-      - key: "Email"
-        icon: "󰇮"
-        value: "arindamlanger@gmail.com"
-      - key: "Phone"
-        icon: "󰏲"
-        value: "+91-7006395984"
+  # ----------------------------------------------------------------------------
+  # 5. Key-Value Section (Contact / Socials / Quick Facts)
+  # ----------------------------------------------------------------------------
+  - title: "Contact"                     # [REQUIRED] Tab name
+    icon: ""                            # [OPTIONAL] Nerd Font icon
+    type: "key_value"                    # [REQUIRED] Section type
+    key_value_items:                     # [REQUIRED for 'key_value']
+      - key: "Email"                     # [REQUIRED] Key label
+        icon: "󰇮"                        # [OPTIONAL] Icon
+        value: "jane@example.com"        # [REQUIRED] Value
+      - key: "GitHub"
+        icon: ""
+        value: "github.com/janedoe"
       - key: "LinkedIn"
         icon: "󰌻"
-        value: "linkedin.com/in/arindam-langer"
-      - key: "GitHub"
-        icon: "󰊤"
-        value: "github.com/Arindam-Langer"
+        value: "linkedin.com/in/janedoe"
+      - key: "Website"
+        icon: "󰖟"
+        value: "https://janedoe.dev"
+      - key: "Resume"
+        icon: "󰈔"
+        value: "scp -P 2222 localhost:resume/sample_resume.pdf ./"
