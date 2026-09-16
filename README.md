@@ -1,4 +1,4 @@
-#  SSH TUI Portfolio
+# SSH TUI Portfolio
 
 An interactive, SSH-accessible terminal portfolio built with **Go**, **Wish**, and **Bubble Tea**. Showcase your experience, skills, projects, and contact details directly in anyone's terminal — zero client-side dependencies required beyond a standard `ssh` client.
 
@@ -8,24 +8,24 @@ ssh -p 2222 localhost
 
 ---
 
-## 󰒋 Features
+## Features
 
-- 󰏘 **Arch Dark Theme** — Deep background (`#0C0D11`), elevated surfaces (`#171A25`), and crisp teal accents (`#7EBAB5`).
-- 󰒓 **100% Config-Driven** — Customize your entire portfolio in `config.yaml`. Add, remove, or reorder tabs without touching Go code.
--  **5 Dynamic Section Types**:
+- **Arch Dark Theme** — Deep background (`#0C0D11`), elevated surfaces (`#171A25`), and crisp teal accents (`#7EBAB5`).
+- **100% Config-Driven** — Customize your entire portfolio in `config.yaml`. Add, remove, or reorder tabs without touching Go code.
+- **5 Dynamic Section Types**:
   - `text` — Free-form bio, about me, and markdown-friendly summaries.
   - `skill_list` — Categorized technical skills with optional visual progress bars (0–100%).
   - `timeline` — Work history, education, and milestones with dates, tags, and bullet points.
   - `projects` — Project showcase with expandable cards (`Enter` to toggle details) and repo links.
   - `key_value` — Clean two-column layout for contact information, socials, or specs.
-- 󰈔 **Direct Resume Download (SCP)** — Visitors can download your resume directly over SCP without leaving their terminal.
--  **Vim & Number Navigation** — Move smoothly with `Tab`, `h/j/k/l`, arrow keys, or number keys `1–9`.
-- 󰋖 **Help Overlay** — Press `?` at any point to view keybindings.
--  **Production & Container Ready** — Includes a multi-stage `Dockerfile` and `docker-compose.yml`.
+- **Direct Resume Download (SCP)** — Visitors can download your resume directly over SCP without leaving their terminal.
+- **Vim & Number Navigation** — Move smoothly with `Tab`, `h/j/k/l`, arrow keys, or number keys `1–9`.
+- **Help Overlay** — Press `?` at any point to view keybindings.
+- **Production & Container Ready** — Includes a multi-stage `Dockerfile` and `docker-compose.yml`.
 
 ---
 
-##  Quick Start
+## Quick Start
 
 ### 1. Clone & Setup Configuration
 
@@ -63,7 +63,7 @@ docker run -d -p 2222:2222 --name ssh-portfolio ssh-portfolio
 
 ---
 
-##  Configuration Guide
+## Configuration Guide
 
 All personal data, branding, and tabs are configured in `config.yaml`. See [config.example.yaml](config.example.yaml) for a fully annotated template.
 
@@ -91,7 +91,7 @@ All personal data, branding, and tabs are configured in `config.yaml`. See [conf
 
 ---
 
-##  Keyboard Shortcuts
+## Keyboard Shortcuts
 
 | Key | Action |
 |---|---|
@@ -105,7 +105,7 @@ All personal data, branding, and tabs are configured in `config.yaml`. See [conf
 
 ---
 
-## 󰈔 SCP Resume Download
+## SCP Resume Download
 
 Place your PDF resume inside the `resume/` directory (e.g. `resume/sample_resume.pdf`). Visitors can fetch it directly using (need to research on how to make it work with hyperlink to click and download using scp or something else):
 
@@ -115,7 +115,7 @@ scp -P 2222 localhost:resume/sample_resume.pdf ./
 
 ---
 
-## 󰒍 Deploying to a VPS / Cloud
+## Deploying to a VPS / Cloud
 
 To run this as a public SSH service on port `22` or `2222`:
 
