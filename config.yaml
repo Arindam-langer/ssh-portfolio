@@ -117,6 +117,7 @@ sections:
         tagline: "SSH-accessible TUI"    # [OPTIONAL] Brief description
         icon: "󰒋"                        # [OPTIONAL] Icon
         tech: "Go · Wish · Bubble Tea"   # [OPTIONAL] Technologies used
+        value: "github link"
         url: "https://github.com/example/ssh-portfolio" # [OPTIONAL] Repo link
         bullets:                         # [OPTIONAL] Feature list / details
           - "Config-driven dynamic tabs and layouts."
@@ -141,6 +142,3 @@ sections:
       - key: "Website"
         icon: "󰖟"
         value: "https://janedoe.dev"
-      - key: "Resume"
-        icon: "󰈔"
-        value: "scp -P 2222 localhost:resume/sample_resume.pdf ./"

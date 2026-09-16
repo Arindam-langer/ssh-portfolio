@@ -107,7 +107,7 @@ All personal data, branding, and tabs are configured in `config.yaml`. See [conf
 
 ## 󰈔 SCP Resume Download
 
-Place your PDF resume inside the `resume/` directory (e.g. `resume/sample_resume.pdf`). Visitors can fetch it directly using:
+Place your PDF resume inside the `resume/` directory (e.g. `resume/sample_resume.pdf`). Visitors can fetch it directly using (need to research on how to make it work with hyperlink to click and download using scp or something else):
 
 ```bash
 scp -P 2222 localhost:resume/sample_resume.pdf ./
@@ -128,3 +128,5 @@ To run this as a public SSH service on port `22` or `2222`:
    ```bash
    ssh yourdomain.com -p 2222
    ```
+#### current To-do
+- adding support for hyprlinks in values or links part of the config.
