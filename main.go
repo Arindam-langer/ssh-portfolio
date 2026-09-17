@@ -94,5 +94,5 @@ func main() {
 func teaHandler(s ssh.Session) (tea.Model, []tea.ProgramOption) {
 	pty, _, _ := s.Pty()
 	m := tui.NewModel(pty.Term, pty.Window.Width, pty.Window.Height)
-	return m, []tea.ProgramOption{}
+	return m, nil
 }

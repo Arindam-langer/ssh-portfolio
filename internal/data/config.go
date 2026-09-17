@@ -11,8 +11,9 @@ import (
 var AppConfig *Config
 
 type Config struct {
-	Profile  Profile   `yaml:"profile"`
-	Sections []Section `yaml:"sections"`
+	Profile      Profile   `yaml:"profile"`
+	SplashFrames []string  `yaml:"splash_frames,omitempty"`
+	Sections     []Section `yaml:"sections"`
 }
 
 type Profile struct {
@@ -87,6 +88,12 @@ var SplashFrames = []string{
 	"Welcome aboard.",
 }
 
+func (c *Config) splashFramesOrDefault() {
+	if len(c.SplashFrames) == 0 {
+		c.SplashFrames = append([]string(nil), SplashFrames...)
+	}
+}
+
 var DefaultAsciiLogo = `
 ▄▖▄▖▖▖  ▄▖    ▗ ▐▘  ▜ ▘  
 ▚ ▚ ▙▌  ▙▌▛▌▛▘▜▘▜▘▛▌▐ ▌▛▌
@@ -127,6 +134,7 @@ func LoadConfig(path string) error {
 	if cfg.Profile.AsciiLogo == "" {
 		cfg.Profile.AsciiLogo = DefaultAsciiLogo
 	}
+	cfg.splashFramesOrDefault()
 	AppConfig = &cfg
 	return nil
 }

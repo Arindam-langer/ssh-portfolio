@@ -24,6 +24,15 @@ profile:
     # ······························································
 
 # ------------------------------------------------------------------------------
+# Splash Screen Frames
+splash_frames:
+  - "Establishing secure connection..."
+  - "Loading portfolio modules..."
+  - "Initializing Bubble Tea runtime..."
+  - "Rendering terminal UI..."
+  - "Welcome aboard."
+
+# ------------------------------------------------------------------------------
 # Navigation Sections (Tabs)
 # [REQUIRED] Must have at least 1 section.
 # Tabs appear in the exact order listed below.
@@ -110,20 +119,53 @@ sections:
   # 4. Projects Section (Expandable Cards)
   # ----------------------------------------------------------------------------
   - title: "Projects"                    # [REQUIRED] Tab name
-    icon: ""                            # [OPTIONAL] Nerd Font icon
+    icon: ""                            # [OPTIONAL] Nerd Font icon
     type: "projects"                     # [REQUIRED] Section type
     projects:                            # [REQUIRED for 'projects']
       - name: "ssh-portfolio"            # [REQUIRED] Project title
         tagline: "SSH-accessible TUI"    # [OPTIONAL] Brief description
         icon: "󰒋"                        # [OPTIONAL] Icon
         tech: "Go · Wish · Bubble Tea"   # [OPTIONAL] Technologies used
-        value: "github link"
-        url: "https://github.com/example/ssh-portfolio" # [OPTIONAL] Repo link
+        url: "https://github.com/Arindam-Langer/ssh-portfolio" # [OPTIONAL] Repo link
         bullets:                         # [OPTIONAL] Feature list / details
           - "Config-driven dynamic tabs and layouts."
           - "Supports SCP resume download and custom theme palettes."
 
-  # ----------------------------------------------------------------------------
+      - name: "Authn-service"
+        tagline: "Security-focused Go microservices backend"
+        icon: "󰌾"
+        tech: "Go · Python/FastAPI · Redis · KMS"
+        url: "https://github.com/Arindam-langer/Authn-service"
+        bullets:
+          - "Auth service with RS256/JWKS, refresh token rotation, and Redis-based blocklisting."
+          - "PII tokenization vault modeled after Skyflow, using AES-256-GCM envelope encryption with per-record DEKs."
+          - "Two-tier AuthZ model combining RBAC with a field/purpose-level policy table."
+          - "Shared authkit Go module for JWT verification across services."
+
+      - name: "BoostIt"
+        tagline: "AI-powered video generation pipeline"
+        icon: "󰃽"
+        tech: "Node.js · BullMQ · FFmpeg · MongoDB · S3"
+        url: "https://github.com/Arindam-Langer/boostit"
+        bullets:
+          - "Integrates HeyGen, Veo, and ElevenLabs with OpenShot Cloud API for timeline-based editing."
+          - "Fixed lip sync drift by replacing per-segment re-encode + concat with a single-pass filter_complex."
+          - "Multi-avatar scene-based cropping and UGC ad generation pages."
+          - "API key management secured with AES-256-GCM encryption."
+
+      - name: "Verity"
+        tagline: "Instagram audience intelligence platform"
+        icon: "󰄨"
+        tech: "Node.js · TypeScript · Playwright · Crawlee · Redis"
+        url: "https://github.com/Arindam-Langer/verity"
+        bullets:
+          - "BullMQ worker system scraping Instagram via Crawlee and Playwright."
+          - "SSR payload extraction using RelayPrefetchedStreamCache."
+          - "Bot scoring, sentiment analysis, and mutual overlap detection with Redis caching."
+          - "Evaluating VADER vs. multilingual transformer models for Hinglish sentiment content."
+
+
+    # ----------------------------------------------------------------------------
   # 5. Key-Value Section (Contact / Socials / Quick Facts)
   # ----------------------------------------------------------------------------
   - title: "Contact"                     # [REQUIRED] Tab name

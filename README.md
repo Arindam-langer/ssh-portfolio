@@ -74,6 +74,7 @@ All personal data, branding, and tabs are configured in `config.yaml`. See [conf
 | `profile.name` | **Required** | Your name/handle shown in SSH banners, titles, and footers. |
 | `profile.tagline` | *Optional* | Subtitle displayed beneath your name. |
 | `profile.ascii_logo` | *Optional* | Custom ASCII art banner (defaults to standard logo if omitted). |
+| `splash_frames` | *Optional* | Ordered list of animated startup messages (built-in defaults are used if omitted). |
 | `sections` | **Required** | List of tabs to render (must include at least 1). |
 | `sections[].title` | **Required** | The label shown on the navigation tab. |
 | `sections[].type` | **Required** | One of `text`, `skill_list`, `timeline`, `projects`, or `key_value`. |

@@ -24,6 +24,20 @@ profile:
     # ······························································
 
 # ------------------------------------------------------------------------------
+# Splash Screen Frames
+# [OPTIONAL] Animated status messages shown while the portfolio starts.
+# If omitted or empty, the built-in defaults are used.
+# Add, remove, or reorder frames to customize the startup animation.
+# ------------------------------------------------------------------------------
+splash_frames:
+  - "Establishing secure connection..."
+  - "Loading portfolio modules..."
+  - "Initializing Bubble Tea runtime..."
+  - "Rendering terminal UI..."
+  - "Welcome aboard."
+  - "Preparing your portfolio..."
+
+# ------------------------------------------------------------------------------
 # Navigation Sections (Tabs)
 # [REQUIRED] Must have at least 1 section.
 # Tabs appear in the exact order listed below.

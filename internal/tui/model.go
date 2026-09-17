@@ -84,6 +84,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 
+	case tea.MouseClickMsg:
+		if m.phase != phaseMain || m.showHelp {
+			return m, nil
+		}
+		mouse := msg.Mouse()
+		if mouse.Button != tea.MouseLeft {
+			return m, nil
+		}
+		if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
+			return m, nil
+		}
+		if data.AppConfig.Sections[m.activeTab].Type != "projects" {
+			return m, nil
+		}
+
+		headerH := lipgloss.Height(m.renderHeader())
+		tabsH := lipgloss.Height(m.renderTabs())
+		contentY := mouse.Y - headerH - tabsH - m.styles.Content.GetBorderTopSize() - m.styles.Content.GetPaddingTop()
+		if contentY < 0 || contentY >= m.viewport.Height {
+			return m, nil
+		}
+		idx := m.projectIndexAtOffset(m.viewport.YOffset + contentY)
+		m, cmd := m.toggleProjectAtIndex(idx)
+		m.updateViewport()
+		return m, cmd
+
 	case tea.KeyMsg:
 		// Global keys
 		switch msg.String() {
@@ -169,6 +195,57 @@ func (m Model) handleMainKeys(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m Model) projectLeadingHeight() int {
+	if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
+		return 0
+	}
+	sec := data.AppConfig.Sections[m.activeTab]
+	if sec.Type != "projects" {
+		return 0
+	}
+
+	titleText := sec.Title
+	if sec.Icon != "" {
+		titleText = sec.Icon + " " + sec.Title
+	}
+	title := m.styles.Heading.Render("  " + titleText)
+	hint := m.styles.Muted.Render("  Use ↑/↓ to scroll, enter to expand/collapse")
+	return lipgloss.Height(title) + lipgloss.Height(hint) + 1
+}
+
+func (m Model) projectCardHeight(proj data.Project, idx int) int {
+	contentWidth := m.width - 10
+	if contentWidth < 40 {
+		contentWidth = 40
+	}
+	card := m.renderProjectCard(proj, idx, contentWidth)
+	return lipgloss.Height(card)
+}
+
+func (m Model) projectIndexAtOffset(offset int) int {
+	if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
+		return 0
+	}
+	sec := data.AppConfig.Sections[m.activeTab]
+	if sec.Type != "projects" || len(sec.Projects) == 0 {
+		return 0
+	}
+	leading := m.projectLeadingHeight()
+	if offset < leading {
+		return 0
+	}
+
+	cursor := leading
+	for i, proj := range sec.Projects {
+		height := m.projectCardHeight(proj, i)
+		if offset >= cursor && offset < cursor+height {
+			return i
+		}
+		cursor += height
+	}
+	return len(sec.Projects) - 1
+}
+
 func (m Model) toggleProject() (Model, tea.Cmd) {
 	if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
 		return m, nil
@@ -177,14 +254,25 @@ func (m Model) toggleProject() (Model, tea.Cmd) {
 	if len(sec.Projects) == 0 {
 		return m, nil
 	}
-	idx := m.scrollOffset % len(sec.Projects)
+	idx := m.projectIndexAtOffset(m.viewport.YOffset)
+	return m.toggleProjectAtIndex(idx)
+}
+
+func (m Model) toggleProjectAtIndex(idx int) (Model, tea.Cmd) {
+	if data.AppConfig == nil || m.activeTab >= len(data.AppConfig.Sections) {
+		return m, nil
+	}
+	sec := data.AppConfig.Sections[m.activeTab]
+	if idx < 0 || idx >= len(sec.Projects) {
+		idx = 0
+	}
 	key := fmt.Sprintf("%d_%d", m.activeTab, idx)
 	m.projectExpanded[key] = !m.projectExpanded[key]
 	return m, nil
 }
 
 func (m Model) updateSplash() (Model, tea.Cmd) {
-	frames := data.SplashFrames
+	frames := m.splashFrames()
 	if m.splashStep >= len(frames) {
 		m.phase = phaseMain
 		return m, nil
@@ -218,6 +306,7 @@ func (m Model) View() tea.View {
 
 	v := tea.NewView(content)
 	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
 	return v
 }
 
@@ -238,7 +327,7 @@ func (m Model) viewSplash() string {
 	logo := s.Logo.Render(logoStr)
 	tagline := s.Subtitle.Render(taglineStr)
 
-	frames := data.SplashFrames
+	frames := m.splashFrames()
 
 	// Build the progress display
 	var lines []string
@@ -263,6 +352,13 @@ func (m Model) viewSplash() string {
 	)
 
 	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, block)
+}
+
+func (m Model) splashFrames() []string {
+	if data.AppConfig != nil && len(data.AppConfig.SplashFrames) > 0 {
+		return data.AppConfig.SplashFrames
+	}
+	return data.SplashFrames
 }
 
 // ============================================================================
@@ -653,6 +749,36 @@ func (m Model) renderTimelineSection(sec data.Section) string {
 	return strings.Join(cards, "\n")
 }
 
+func (m Model) renderProjectCard(proj data.Project, idx int, contentWidth int) string {
+	s := m.styles
+	projName := proj.Name
+	if proj.Icon != "" {
+		projName = proj.Icon + " " + projName
+	}
+	header := fmt.Sprintf("%s  %s",
+		s.CardTitle.Render("  "+projName),
+		s.Subtitle.Render("— "+proj.Tagline),
+	)
+	tech := s.Accent.Render("  " + proj.Tech)
+	link := s.Link.Render("  " + proj.GitHubURL)
+
+	lines := []string{header, tech, link}
+
+	key := fmt.Sprintf("%d_%d", m.activeTab, idx)
+	expanded := m.projectExpanded[key]
+	if expanded {
+		lines = append(lines, "")
+		for _, b := range proj.Bullets {
+			wrapped := wrapText(b, contentWidth-10)
+			lines = append(lines, "  "+s.Bullet.Render("▸")+" "+s.Body.Width(contentWidth-10).Render(wrapped))
+		}
+	} else {
+		lines = append(lines, s.Muted.Render("  ▶ click to expand details..."))
+	}
+
+	return s.Card.Width(contentWidth).Render(strings.Join(lines, "\n"))
+}
+
 func (m Model) renderProjectsSection(sec data.Section) string {
 	s := m.styles
 	contentWidth := m.width - 10
@@ -671,33 +797,7 @@ func (m Model) renderProjectsSection(sec data.Section) string {
 	cards = append(cards, title, hint, "")
 
 	for i, proj := range sec.Projects {
-		projName := proj.Name
-		if proj.Icon != "" {
-			projName = proj.Icon + " " + projName
-		}
-		header := fmt.Sprintf("%s  %s",
-			s.CardTitle.Render("  "+projName),
-			s.Subtitle.Render("— "+proj.Tagline),
-		)
-		tech := s.Accent.Render("  " + proj.Tech)
-		link := s.Link.Render("  " + proj.GitHubURL)
-
-		lines := []string{header, tech, link}
-
-		key := fmt.Sprintf("%d_%d", m.activeTab, i)
-		expanded := m.projectExpanded[key]
-		if expanded {
-			lines = append(lines, "")
-			for _, b := range proj.Bullets {
-				wrapped := wrapText(b, contentWidth-10)
-				lines = append(lines, "  "+s.Bullet.Render("▸")+" "+s.Body.Width(contentWidth-10).Render(wrapped))
-			}
-		} else {
-			lines = append(lines, s.Muted.Render("  ▶ press enter to expand details..."))
-		}
-
-		card := s.Card.Width(contentWidth).Render(strings.Join(lines, "\n"))
-		cards = append(cards, card)
+		cards = append(cards, m.renderProjectCard(proj, i, contentWidth))
 	}
 
 	return strings.Join(cards, "\n")
